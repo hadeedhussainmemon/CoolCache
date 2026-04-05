@@ -16,8 +16,7 @@ const DEFAULT_OPTIONS = {
 };
 
 // Cache connection across hot reloads / lambda warm instances
-const globalRef = globalThis;
-if (!globalRef.__mongo) globalRef.__mongo = { conn: null, promise: null };
+if (!globalRef.__mongo) globalRef.__mongo = { conn: null, promise: null, isConnecting: false };
 
 async function connectToDatabase(uri) {
   if (!uri) throw new Error('MONGODB_URI not provided');
@@ -62,8 +61,16 @@ async function connectToDatabase(uri) {
     })();
   }
 
-  globalRef.__mongo.conn = await globalRef.__mongo.promise;
-  return globalRef.__mongo.conn;
+  // On platforms like Render/Vercel, we don't want to await the promise 
+  // indefinitely if we want our server to respond to health checks.
+  // We'll let the connection happen in the background.
+  globalRef.__mongo.promise.then(conn => {
+    globalRef.__mongo.conn = conn;
+  }).catch(err => {
+    console.error('⚠️ MongoDB deferred connection failed:', err.message);
+  });
+
+  return globalRef.__mongo.promise;
 }
 
 function getMongoose() {

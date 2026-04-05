@@ -17,8 +17,12 @@ const shareRoutes = require('./routes/shareRoutes');
 const sitemapController = require('./controllers/sitemapController');
 // review routes removed per request: reviews are kept on Instagram highlights
 
-// Load environment variables
-dotenv.config();
+// Load environment variables with fallback for root discovery on Render
+const envRes = dotenv.config();
+if (envRes.error) {
+  // If not found in current dir, look in parent (e.g. when running from Backend/)
+  dotenv.config({ path: path.join(__dirname, '../.env') });
+}
 
 // Deployment timestamp: 2025-11-12 19:26
 const app = express();
@@ -65,15 +69,18 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, Postman, etc.)
-    if (!origin || allowedOrigins.includes(origin)) {
+    // If no origin or matches whitelist or includes 'coolcache', allow it.
+    // This is more robust for subdomains and various deployment previews.
+    if (!origin || allowedOrigins.includes(origin) || origin.includes('coolcache')) {
       callback(null, true);
     } else {
       console.warn(`CORS blocked origin: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
 }));
 app.use(express.json());
 
@@ -97,6 +104,11 @@ const serveStatic = express.static(path.join(__dirname, 'public/images'), {
     // Add cache headers for images (1 year for immutable assets)
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
   }
+});
+
+// Standard root health check for Render/Uptime Kuma
+app.get('/', (req, res) => {
+  res.status(200).send('CoolCache Backend API Operational');
 });
 
 // Serve static files
