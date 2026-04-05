@@ -1,0 +1,37 @@
+{
+  "name": "CoolCache Pakistan - Trending Electronics & Premium Gifts Online",
+  "short_name": "CoolCache",
+  "description": "Shop trending smartwatches, wireless earbuds, power banks, premium gifts, lifestyle accessories & more. Fast delivery across Pakistan with COD available.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#8B5CF6",
+  "orientation": "portrait-primary",
+  "lang": "en-PK",
+  "icons": [
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["shopping", "lifestyle", "electronics"],
+  "screenshots": [
+    {
+      "src": "/og-image.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg"
+    }
+  ],
+  "keywords": [
+    "online shopping Pakistan",
+    "smartwatch Pakistan",
+    "wireless earbuds",
+    "power bank",
+    "premium gifts",
+    "electronics Pakistan",
+    "trending gadgets",
+    "COD shopping",
+    "fast delivery Pakistan"
+  ]
+}

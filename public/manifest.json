@@ -1,0 +1,73 @@
+{
+  "name": "CoolCache Pakistan - Trending Electronics & Premium Gifts Online",
+  "short_name": "CoolCache",
+  "description": "Shop trending smartwatches, wireless earbuds, power banks, premium gifts, lifestyle accessories & more. Fast delivery across Pakistan with COD available.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#8B5CF6",
+  "orientation": "portrait-primary",
+  "lang": "en-PK",
+  "dir": "ltr",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "lifestyle", "electronics"],
+  "screenshots": [
+    {
+      "src": "/og-image.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Shop Products",
+      "short_name": "Products",
+      "description": "Browse all products",
+      "url": "/#products",
+      "icons": [{ "src": "/favicon-32x32.png", "sizes": "32x32" }]
+    },
+    {
+      "name": "Categories",
+      "short_name": "Categories",
+      "description": "Browse categories",
+      "url": "/categories",
+      "icons": [{ "src": "/favicon-32x32.png", "sizes": "32x32" }]
+    },
+    {
+      "name": "Cart",
+      "short_name": "Cart",
+      "description": "View shopping cart",
+      "url": "/cart",
+      "icons": [{ "src": "/favicon-32x32.png", "sizes": "32x32" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "keywords": [
+    "online shopping Pakistan",
+    "smartwatch Pakistan",
+    "wireless earbuds",
+    "power bank",
+    "premium gifts",
+    "electronics Pakistan",
+    "trending gadgets",
+    "COD shopping",
+    "fast delivery Pakistan",
+    "CoolCache"
+  ]
+}
