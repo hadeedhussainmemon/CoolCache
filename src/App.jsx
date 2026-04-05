@@ -6,7 +6,7 @@ import Navbar from './components/Navbar/Navbar';
 import PageSkeleton from './components/Skeletons/PageSkeleton';
 import ProductDetailSkeleton from './components/Skeletons/ProductDetailSkeleton';
 import Cart from './components/Cart/Cart';
-import ProtectedRoute from './components/Admin/ProtectedRoute';
+import ProtectedRoute from './components/admin/ProtectedRoute';
 import SEO from './components/SEO/SEO';
 import SortToTop from './components/utility/ScrollToTop';
 import WhatsAppButton from './components/WhatsAppButton/WhatsAppButton';
@@ -23,8 +23,8 @@ const OrderTracking = lazy(() => import('./components/OrderTracking/OrderTrackin
 const MyOrders = lazy(() => import('./components/MyOrders/MyOrders'));
 const Checkout = lazy(() => import('./components/Checkout/CheckoutForm'));
 const OrderSuccess = lazy(() => import('./components/Checkout/OrderSuccess'));
-const AdminLogin = lazy(() => import('./components/Admin/AdminLogin'));
-const AdminDashboard = lazy(() => import('./components/Admin/AdminDashboard'));
+const AdminLogin = lazy(() => import('./components/admin/AdminLogin'));
+const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard'));
 const InstallPage = lazy(() => import('./components/PWA/InstallPage'));
 const NotFound = lazy(() => import('./components/Errors/NotFound'));
 
