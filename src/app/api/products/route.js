@@ -71,7 +71,7 @@ export async function GET(req) {
     else if (sort === 'priceDesc') secondarySort = { price: -1, _id: -1 };
     else if (sort === 'featured') secondarySort = { stock: -1, _id: -1 };
 
-    // Hard Redesign: Use simple find() to avoid aggregate facet loopholes
+    // Nuclear Redesign: Use direct find() without any field restrictions or facet logic
     const total = await Product.countDocuments(matchStage);
     const productsData = await Product.find(matchStage)
       .sort(secondarySort)

@@ -47,7 +47,7 @@ const productSchema = new mongoose.Schema({
         default: false
     },
     isVisible: {
-        type: Boolean,
+        type: mongoose.Schema.Types.Mixed,
         default: true
     },
     colors: {
