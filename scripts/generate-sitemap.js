@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const API_URL = 'https://coolcache.onrender.com/api/products?pageSize=1000'; // Fetch all
+const API_URL = 'https://coolcache.app/api/products?pageSize=1000'; // Fetch all
 const HOST = 'https://www.coolcache.app';
 const TARGET_FILE = path.resolve(__dirname, '../public/sitemap.xml');
 

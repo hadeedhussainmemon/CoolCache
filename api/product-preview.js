@@ -4,7 +4,7 @@
  */
 
 const SITE_URL = process.env.SITE_URL || 'https://www.coolcache.app';
-const API_BASE = process.env.API_BASE || 'https://coolcache.onrender.com';
+const API_BASE = process.env.API_BASE || 'https://www.coolcache.app';
 // No debug logs for production — envs are used by deployment platform
 
 export default async function handler(req, res) {

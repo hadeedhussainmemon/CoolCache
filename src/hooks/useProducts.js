@@ -54,10 +54,10 @@ const useProducts = ({ page = 1, pageSize = 12, signal, search } = {}) => {
 
       let url;
       try {
-        url = new URL(apiUrl, window.location.origin);
+        url = new URL(apiUrl.startsWith('http') ? apiUrl : apiUrl, window.location.origin);
       } catch (e) {
-        // If URL construction fails, try without origin
-        url = new URL(apiUrl.startsWith('http') ? apiUrl : `http://localhost:5000${apiUrl}`);
+        // If URL construction fails, fall back to relative path on current origin
+        url = new URL(path, window.location.origin);
       }
       
       url.searchParams.set('page', String(p));
