@@ -31,13 +31,15 @@ export async function GET(req) {
     const showHidden = searchParams.get('showHidden') === 'true';
 
     const matchStage = {};
-    // Temporarily bypass visibility filter for debugging
-    // if (!showHidden) matchStage.isVisible = true;
+    // REMOVED ALL FILTERS FOR FINAL DB VERIFICATION
+    // matchStage.isVisible = { $in: [true, "true"] };
 
+    /*
     if (categories.length > 0) {
       const regexCats = categories.map(c => new RegExp(`^${c}$`, 'i'));
       matchStage.category = { $in: regexCats };
     }
+    */
 
     if (search) {
       const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -57,7 +59,9 @@ export async function GET(req) {
       if (maxPrice !== null) matchStage.price.$lte = maxPrice;
     }
 
+    /*
     if (inStock) matchStage.stock = { $gt: 0 };
+    */
 
     console.log('Match Stage:', JSON.stringify(matchStage, null, 2));
 
