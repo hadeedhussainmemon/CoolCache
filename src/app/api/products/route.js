@@ -71,37 +71,23 @@ export async function GET(req) {
     else if (sort === 'priceDesc') secondarySort = { price: -1, _id: -1 };
     else if (sort === 'featured') secondarySort = { stock: -1, _id: -1 };
 
-    const pipeline = [
-      { $match: matchStage },
-      {
-        $addFields: {
-          availabilityScore: {
-            $switch: {
-              branches: [
-                { case: { $and: [{ $gt: ["$stock", 0] }, { $gt: ["$price", 0] }] }, then: 3 },
-                { case: { $gt: ["$stock", 0] }, then: 2 }
-              ],
-              default: 1
-            }
-          }
-        }
-      },
-      { $sort: { availabilityScore: -1, ...secondarySort } },
-      {
-        $facet: {
-          metadata: [{ $count: "total" }],
-          data: [
-            { $skip: (page - 1) * pageSize },
-            { $limit: pageSize }
-          ]
-        }
-      }
-    ];
+    // Hard Redesign: Use simple find() to avoid aggregate facet loopholes
+    const total = await Product.countDocuments(matchStage);
+    const productsData = await Product.find(matchStage)
+      .sort(secondarySort)
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .lean();
 
-    const result = await Product.aggregate(pipeline);
-    console.log('Aggregate Result Length:', result[0]?.data?.length || 0);
-    const total = result[0].metadata.length > 0 ? result[0].metadata[0].total : 0;
-    const productsData = result[0].data;
+    console.log('--- COLLECTION DIAGNOSTICS ---');
+    console.log('Total in collection (raw):', await Product.countDocuments({}));
+    console.log('Total matching filters:', total);
+    console.log('Page:', page, 'PageSize:', pageSize);
+    
+    if (productsData.length > 0) {
+      console.log('Sample Product ID:', productsData[0].id);
+      console.log('Sample Product Visibility:', productsData[0].isVisible);
+    }
 
     const payload = productsData.map(d => ({
       id: d.id,
