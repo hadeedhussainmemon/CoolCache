@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect, useRef, useState } from 'react';
 
 // Renders children only when it becomes visible (IntersectionObserver)

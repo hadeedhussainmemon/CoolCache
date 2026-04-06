@@ -1,11 +1,11 @@
-const IMAGE_BASE_URL = (import.meta.env.VITE_IMAGE_BASE_URL || window.__APP_CONFIG__?.IMAGE_BASE_URL || '').replace(/\/$/, '');
+const IMAGE_BASE_URL = (process.env.NEXT_PUBLIC_IMAGE_BASE_URL || '').replace(/\/$/, '');
 
 export function getImageBaseUrl() {
   return IMAGE_BASE_URL;
 }
 
 export function getImageUrl(path, options = {}) {
-  const fallback = `${window.location.origin}/og-image.jpg`;
+  const fallback = typeof window !== 'undefined' ? `${window.location.origin}/og-image.jpg` : '/og-image.jpg';
   if (!path) return fallback;
   const s = String(path).trim();
 

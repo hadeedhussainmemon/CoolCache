@@ -1,5 +1,8 @@
+'use client';
+
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 import logo from "../../assets/logo.png";
@@ -9,8 +12,8 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { getCartItemsCount, toggleCart } = useCart();
   const { wishlistItems } = useWishlist();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname();
   const cartItemsCount = getCartItemsCount();
   const wishlistCount = wishlistItems.length;
   const [navSearch, setNavSearch] = useState("");
@@ -72,17 +75,17 @@ const Navbar = () => {
       }
     };
 
-    if (location.pathname !== "/") {
-      navigate("/");
+    if (pathname !== "/") {
+      router.push("/");
       setTimeout(performScroll, 150);
     } else {
       performScroll();
     }
-  }, [location.pathname, navigate, closeMenu]);
+  }, [pathname, router, closeMenu]);
 
   // Instagram username with fallback
   const instagramUsername = useMemo(
-    () => import.meta.env.VITE_INSTAGRAM_USERNAME || "coolcache",
+    () => process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME || "coolcache",
     []
   );
 
@@ -100,17 +103,17 @@ const Navbar = () => {
       if (el && el.tagName && ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName)) return;
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        navigate('/search');
+        router.push('/search');
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [navigate]);
+  }, [router]);
 
   // Memoize active route checks
-  const isHomePage = location.pathname === "/";
-  const isCategoryPage = location.pathname.startsWith('/category');
-  const isRecommendationsPage = location.pathname.startsWith('/recommendations');
+  const isHomePage = pathname === "/";
+  const isCategoryPage = pathname.startsWith('/category');
+  const isRecommendationsPage = pathname.startsWith('/recommendations');
 
   return (
     <nav className="fixed w-full top-0 z-50 will-change-transform">
@@ -196,7 +199,7 @@ const Navbar = () => {
             {/* Logo - Always visible */}
             <div className="flex items-center flex-shrink-0">
               <Link
-                to="/"
+                href="/"
                 onClick={(e) => scrollToSection(e, "home")}
                 className="flex items-center gap-2 group hover:opacity-95 transition-all duration-300"
               >
@@ -225,7 +228,7 @@ const Navbar = () => {
             <div className="hidden md:flex items-center justify-center flex-1 gap-1 lg:gap-3">
 
               <Link
-                to="/categories"
+                href="/categories"
                 className={`px-4 py-2 text-sm font-semibold transition-all duration-200 rounded-xl ${isCategoryPage ? 'text-purple-600 bg-gradient-to-r from-purple-50 to-pink-50 shadow-sm' : 'text-gray-700 hover:text-purple-600 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-pink-50/50'}`}
               >
                 Categories
@@ -240,12 +243,12 @@ const Navbar = () => {
               </a>
               {/* Quick category shortcuts (responsive) */}
               <div className="hidden lg:flex items-center gap-2">
-                <Link to="/category/Watch" onMouseEnter={() => { try { import('../Category/CategoryPage'); } catch (_) { } }} className="px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:text-purple-600 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-pink-50/50 hover:shadow-sm transition-all duration-200">Watches</Link>
-                <Link to="/category/Electronics" onMouseEnter={() => { try { import('../Category/CategoryPage'); } catch (_) { } }} className="px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:text-purple-600 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-pink-50/50 hover:shadow-sm transition-all duration-200">Electronics</Link>
-                <Link to="/category/Drinkware" onMouseEnter={() => { try { import('../Category/CategoryPage'); } catch (_) { } }} className="px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:text-purple-600 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-pink-50/50 hover:shadow-sm transition-all duration-200">Drinkware</Link>
+                <Link href="/category/Watch" onMouseEnter={() => { try { import('../Category/CategoryPage'); } catch (_) { } }} className="px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:text-purple-600 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-pink-50/50 hover:shadow-sm transition-all duration-200">Watches</Link>
+                <Link href="/category/Electronics" onMouseEnter={() => { try { import('../Category/CategoryPage'); } catch (_) { } }} className="px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:text-purple-600 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-pink-50/50 hover:shadow-sm transition-all duration-200">Electronics</Link>
+                <Link href="/category/Drinkware" onMouseEnter={() => { try { import('../Category/CategoryPage'); } catch (_) { } }} className="px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:text-purple-600 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-pink-50/50 hover:shadow-sm transition-all duration-200">Drinkware</Link>
               </div>
               <Link
-                to="/recommendations"
+                href="/recommendations"
                 className={`px-4 py-2 text-sm font-semibold transition-all duration-200 rounded-xl ${isRecommendationsPage ? 'text-purple-600 bg-gradient-to-r from-purple-50 to-pink-50 shadow-sm' : 'text-gray-700 hover:text-purple-600 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-pink-50/50'}`}
               >
                 For You
@@ -256,9 +259,9 @@ const Navbar = () => {
                   value={navSearch}
                   onChange={setNavSearch}
                   onSubmit={(val) => {
-                    const q = typeof val === 'string' && val.length ? val : navSearch;
-                    if (q && q.trim()) {
-                      navigate(`/search?q=${encodeURIComponent(q.trim())}`);
+                    const q = (typeof val === 'string' && val.length ? val : navSearch).trim();
+                    if (q) {
+                      router.push(`/search?q=${encodeURIComponent(q)}`);
                       setNavSearch("");
                     }
                   }}
@@ -310,7 +313,7 @@ const Navbar = () => {
 
               {/* My Orders Icon - Desktop */}
               <button
-                onClick={() => navigate('/my-orders')}
+                onClick={() => router.push('/my-orders')}
                 aria-label="My Orders"
                 className="p-2.5 text-gray-600 hover:text-purple-600 transition-all duration-200 group rounded-xl hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 hover:shadow-md"
               >
@@ -320,14 +323,14 @@ const Navbar = () => {
               </button>
 
               {/* Search Icon - Desktop (quick access) */}
-              <button onClick={() => navigate('/search')} onMouseEnter={() => { try { import('../Search/SearchPage'); } catch (_) { } }} aria-label="Open search" className="p-2.5 text-gray-600 hover:text-purple-600 transition-all duration-200 group rounded-xl hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 hover:shadow-md">
+              <button onClick={() => router.push('/search')} onMouseEnter={() => { try { import('../Search/SearchPage'); } catch (_) { } }} aria-label="Open search" className="p-2.5 text-gray-600 hover:text-purple-600 transition-all duration-200 group rounded-xl hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 hover:shadow-md">
                 <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
                 </svg>
               </button>
               {/* Wishlist Icon - Desktop */}
               <Link
-                to="/wishlist"
+                href="/wishlist"
                 className="relative p-2.5 text-gray-600 hover:text-pink-600 transition-all duration-200 group rounded-xl hover:bg-gradient-to-br hover:from-pink-50 hover:to-purple-50 hover:shadow-md"
                 aria-label="Wishlist"
               >
@@ -386,7 +389,7 @@ const Navbar = () => {
             <div className="flex items-center gap-2 sm:gap-3 md:hidden">
               {/* Search Button */}
               <button
-                onClick={() => navigate('/search')}
+                onClick={() => router.push('/search')}
                 aria-label="Search"
                 className="p-2.5 text-gray-600 hover:text-purple-600 transition-all duration-200 rounded-lg hover:bg-purple-50 active:scale-95"
               >
@@ -445,28 +448,28 @@ const Navbar = () => {
           <div className="md:hidden mobile-menu bg-white/95 backdrop-blur-2xl shadow-2xl border-t border-gray-100 animate-slideIn" id="mobile-menu">
             <div className="px-4 pt-4 pb-5 space-y-2">
               <Link
-                to="/"
+                href="/"
                 onClick={(e) => { scrollToSection(e, "home"); closeMenu(); }}
                 className={`block px-4 py-3.5 rounded-xl text-base font-semibold transition-all duration-200 ${isHomePage ? 'text-purple-600 bg-gradient-to-r from-purple-50 to-pink-50 shadow-sm' : 'text-gray-700 hover:text-purple-600 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-pink-50/50'}`}
               >
                 Home
               </Link>
               <Link
-                to="/my-orders"
+                href="/my-orders"
                 onClick={closeMenu}
                 className="block px-4 py-3.5 rounded-xl text-base font-semibold text-gray-700 hover:text-purple-600 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-pink-50/50 transition-all duration-200"
               >
                 My Orders
               </Link>
               <Link
-                to="/"
+                href="/"
                 onClick={(e) => { scrollToSection(e, "products"); closeMenu(); }}
                 className="block px-4 py-3.5 rounded-xl text-base font-semibold text-gray-700 hover:text-purple-600 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-pink-50/50 transition-all duration-200"
               >
                 Products
               </Link>
               <Link
-                to="/categories"
+                href="/categories"
                 onClick={closeMenu}
                 className={`block px-4 py-3.5 rounded-xl text-base font-semibold transition-all duration-200 ${isCategoryPage ? 'text-purple-600 bg-gradient-to-r from-purple-50 to-pink-50 shadow-sm' : 'text-gray-700 hover:text-purple-600 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-pink-50/50'}`}
               >
@@ -486,22 +489,22 @@ const Navbar = () => {
               <div className="pt-2 pb-1">
                 <p className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Popular</p>
                 <div className="grid grid-cols-2 gap-2">
-                  <Link to="/category/Watch" onClick={closeMenu} className="px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 bg-white hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 hover:text-purple-600 border border-gray-200 hover:border-purple-300 hover:shadow-sm transition-all duration-200 text-center">Watches</Link>
-                  <Link to="/category/Electronics" onClick={closeMenu} className="px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 bg-white hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 hover:text-purple-600 border border-gray-200 hover:border-purple-300 hover:shadow-sm transition-all duration-200 text-center">Electronics</Link>
-                  <Link to="/category/Drinkware" onClick={closeMenu} className="px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 bg-white hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 hover:text-purple-600 border border-gray-200 hover:border-purple-300 hover:shadow-sm transition-all duration-200 text-center">Drinkware</Link>
-                  <Link to="/category/Bags" onClick={closeMenu} className="px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 bg-white hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 hover:text-purple-600 border border-gray-200 hover:border-purple-300 hover:shadow-sm transition-all duration-200 text-center">Bags</Link>
+                  <Link href="/category/Watch" onClick={closeMenu} className="px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 bg-white hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 hover:text-purple-600 border border-gray-200 hover:border-purple-300 hover:shadow-sm transition-all duration-200 text-center">Watches</Link>
+                  <Link href="/category/Electronics" onClick={closeMenu} className="px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 bg-white hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 hover:text-purple-600 border border-gray-200 hover:border-purple-300 hover:shadow-sm transition-all duration-200 text-center">Electronics</Link>
+                  <Link href="/category/Drinkware" onClick={closeMenu} className="px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 bg-white hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 hover:text-purple-600 border border-gray-200 hover:border-purple-300 hover:shadow-sm transition-all duration-200 text-center">Drinkware</Link>
+                  <Link href="/category/Bags" onClick={closeMenu} className="px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 bg-white hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 hover:text-purple-600 border border-gray-200 hover:border-purple-300 hover:shadow-sm transition-all duration-200 text-center">Bags</Link>
                 </div>
               </div>
 
               <Link
-                to="/recommendations"
+                href="/recommendations"
                 onClick={closeMenu}
                 className={`block px-4 py-3.5 rounded-xl text-base font-semibold transition-all duration-200 ${isRecommendationsPage ? 'text-purple-600 bg-gradient-to-r from-purple-50 to-pink-50 shadow-sm' : 'text-gray-700 hover:text-purple-600 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-pink-50/50'}`}
               >
                 For You
               </Link>
               <Link
-                to="/wishlist"
+                href="/wishlist"
                 onClick={closeMenu}
                 className="flex items-center justify-between px-4 py-3.5 rounded-xl text-base font-semibold text-gray-700 hover:text-pink-600 hover:bg-gradient-to-r hover:from-pink-50/50 hover:to-purple-50/50 transition-all duration-200"
               >
@@ -509,14 +512,14 @@ const Navbar = () => {
                 {wishlistCount > 0 && <span className="px-2.5 py-0.5 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs font-bold rounded-full">{wishlistCount}</span>}
               </Link>
               <Link
-                to="/"
+                href="/"
                 onClick={(e) => { scrollToSection(e, "reviews"); closeMenu(); }}
                 className="block px-4 py-3.5 rounded-xl text-base font-semibold text-gray-700 hover:text-purple-600 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-pink-50/50 transition-all duration-200"
               >
                 Reviews
               </Link>
               <Link
-                to="/"
+                href="/"
                 onClick={(e) => { scrollToSection(e, "faq"); closeMenu(); }}
                 className="block px-4 py-3.5 rounded-xl text-base font-semibold text-gray-700 hover:text-purple-600 hover:bg-gradient-to-r hover:from-purple-50/50 hover:to-pink-50/50 transition-all duration-200"
               >

@@ -1,3 +1,4 @@
+'use client';
 import React, { useMemo, useState } from 'react';
 
 const FAQ = () => {
@@ -112,7 +113,7 @@ We’ll confirm an estimated delivery date after you place your order.`
           <p className="text-gray-600">
             Still have questions?{' '}
             <a 
-              href={`https://www.instagram.com/${import.meta.env.VITE_INSTAGRAM_USERNAME}`}
+              href={`https://www.instagram.com/${process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-purple-600 hover:text-purple-700 font-medium"

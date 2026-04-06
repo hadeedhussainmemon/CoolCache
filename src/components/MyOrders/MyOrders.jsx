@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function MyOrders() {
+  const router = useRouter();
   const [contact, setContact] = useState('');
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+  const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 
   const handleSearch = async (e) => {
     e && e.preventDefault();
@@ -98,7 +100,7 @@ export default function MyOrders() {
             </div>
 
             <div className="mt-3 text-right">
-              <button onClick={() => window.location.href = `/track-order/${order.id}`} className="px-3 py-2 bg-gray-100 rounded">Track</button>
+              <button onClick={() => router.push(`/track-order/${order.id}`)} className="px-3 py-2 bg-gray-100 rounded">Track</button>
             </div>
           </div>
         ))}

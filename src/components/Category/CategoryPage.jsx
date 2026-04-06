@@ -1,7 +1,8 @@
+'use client';
 import React, { useState, useEffect } from 'react';
-import { useParams, useSearchParams, Link } from 'react-router-dom';
+import { useParams, useSearchParams, useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
 import ProductCard from '../ProductCard/ProductCard';
-import SEO from '../SEO/SEO';
 import Breadcrumb from '../Breadcrumb/Breadcrumb';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import ProductCardSkeleton from '../Skeletons/ProductCardSkeleton';
@@ -18,8 +19,8 @@ const fetchProductsQuery = async ({ queryKey }) => {
   params.append('page', page);
   params.append('pageSize', pageSize || 24);
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || window.__APP_CONFIG__?.API_BASE_URL || '';
-  const baseUrl = import.meta.env.VITE_API_PRODUCTS || window.__APP_CONFIG__?.API_PRODUCTS || '/api/products';
+  const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+  const baseUrl = (process.env.NEXT_PUBLIC_API_PRODUCTS || '/api/products');
 
   const response = await fetch(`${API_BASE_URL}${baseUrl}?${params.toString()}`);
 
@@ -42,9 +43,18 @@ const ALIAS_SLUGS = [
 const toDisplayName = (slug) => String(slug || '').replace(/-/g, ' ').split(' ').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
 
 function CategoryPage() {
-  const { category } = useParams();
+  const params = useParams();
+  const category = params?.category;
   const slug = category || "All";
-  const [searchParams, setSearchParams] = useSearchParams();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const setSearchParams = (updater) => {
+    const current = new URLSearchParams(searchParams.toString());
+    const next = typeof updater === 'function' ? updater(current) : updater;
+    router.push(`${pathname}?${next.toString()}`, { scroll: false });
+  };
 
   // State
   const [sortOption, setSortOption] = useState('featured');
@@ -114,19 +124,19 @@ function CategoryPage() {
     const interval = setInterval(() => {
       setActivePromo((prev) => (prev + 1) % promos.length);
     }, 4000);
-    return () => clearInterval(interval);
+    return () => clearTimeout(interval);
   }, [promos.length]);
 
   // Handlers
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
-      const el = document.getElementById('product-grid');
-      if (el) {
+      const el = typeof document !== 'undefined' ? document.getElementById('product-grid') : null;
+      if (el && typeof window !== 'undefined') {
         const offset = 100; // slightly more for category header
-        const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
+        const top = el.getBoundingClientRect().top + (window.pageYOffset || 0) - offset;
         window.scrollTo({ top, behavior: 'smooth' });
-      } else {
+      } else if (typeof window !== 'undefined') {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
@@ -134,18 +144,12 @@ function CategoryPage() {
 
   const displayName = slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   const breadcrumbItems = [
-    { name: 'Home', to: '/' },
-    { name: displayName, to: `/category/${slug}` }
+    { name: 'Home', href: '/' },
+    { name: displayName, href: `/category/${slug}` }
   ];
 
   return (
     <>
-      <SEO
-        title={`${displayName} | CoolCache`}
-        description={`Shop the best ${displayName} at CoolCache.`}
-        canonical={`https://www.coolcache.app/category/${slug.toLowerCase()}`}
-      />
-
       <div className="min-h-screen bg-gray-50/50 pb-20">
         {/* Modern Hero Section */}
         <div className="relative bg-gradient-to-br from-violet-900 via-purple-900 to-fuchsia-900 text-white overflow-hidden pb-16 pt-12 lg:pt-20">
@@ -172,7 +176,7 @@ function CategoryPage() {
             {/* Sub-Category Pills */}
             <div className="flex flex-wrap gap-2 justify-center max-w-3xl mx-auto">
               {ALIAS_SLUGS.map((slugKey) => (
-                <Link key={slugKey} to={`/category/${slugKey}`} className="px-4 py-2 rounded-full text-xs md:text-sm font-medium text-white/90 bg-white/10 border border-white/20 hover:bg-white/20 hover:scale-105 transition-all duration-300 backdrop-blur-sm">
+                <Link key={slugKey} href={`/category/${slugKey}`} className="px-4 py-2 rounded-full text-xs md:text-sm font-medium text-white/90 bg-white/10 border border-white/20 hover:bg-white/20 hover:scale-105 transition-all duration-300 backdrop-blur-sm">
                   {toDisplayName(slugKey)}
                 </Link>
               ))}

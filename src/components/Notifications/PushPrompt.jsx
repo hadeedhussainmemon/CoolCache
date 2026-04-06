@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect } from 'react';
 import { usePushNotification } from '../../hooks/usePushNotification';
 import { Bell, X } from 'lucide-react';

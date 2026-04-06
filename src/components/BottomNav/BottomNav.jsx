@@ -1,18 +1,21 @@
+'use client';
+
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 
 const BottomNav = () => {
-  const location = useLocation();
+  const pathname = usePathname();
   const { getCartItemsCount, openCart } = useCart();
   const { wishlistItems } = useWishlist();
   const cartCount = getCartItemsCount();
   const wishlistCount = wishlistItems.length;
 
   const isActive = (path) => {
-    if (path === '/') return location.pathname === '/';
-    return location.pathname.startsWith(path);
+    if (path === '/') return pathname === '/';
+    return pathname.startsWith(path);
   };
 
   const navItems = [
@@ -90,7 +93,7 @@ const BottomNav = () => {
           return (
             <Link
               key={item.name}
-              to={item.path}
+              href={item.path}
               className={`flex flex-col items-center justify-center gap-1 transition-all duration-200 relative ${
                 active ? 'text-purple-600' : 'text-gray-600'
               }`}

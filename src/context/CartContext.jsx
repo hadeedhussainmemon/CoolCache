@@ -1,3 +1,5 @@
+'use client';
+
 import { createContext, useContext, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { toast as sonnerToast } from 'sonner';

@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { useCart } from '../../context/CartContext';
 import getImageUrl from '../../utils/imageUrl';
@@ -61,7 +63,7 @@ export default function Cart() {
     setCouponError(null);
 
     try {
-      const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+      const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
       const response = await fetch(`${API_BASE_URL}/api/coupons/validate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -1,7 +1,9 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 
 const WhatsAppButton = () => {
-  const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '923121842124';
+  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923121842124';
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {

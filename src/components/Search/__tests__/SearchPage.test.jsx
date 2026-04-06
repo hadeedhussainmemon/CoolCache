@@ -1,10 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
 import SearchPage from '../SearchPage';
 
 beforeEach(() => {
   vi.stubGlobal('fetch', vi.fn());
+  vi.mock('next/navigation', () => ({
+    useSearchParams: () => new URLSearchParams('q=test'),
+    useRouter: () => ({
+      push: vi.fn(),
+      replace: vi.fn(),
+      back: vi.fn(),
+      prefetch: vi.fn(),
+    }),
+  }));
 });
 
 describe('SearchPage pagination', () => {
@@ -14,9 +22,7 @@ describe('SearchPage pagination', () => {
     vi.mocked(fetch).mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(res) });
 
     render(
-      <MemoryRouter initialEntries={["/search?q=test"]}>
-        <SearchPage />
-      </MemoryRouter>
+      <SearchPage />
     );
 
     await waitFor(() => expect(screen.getByText('Page 1 of 3')).toBeInTheDocument());

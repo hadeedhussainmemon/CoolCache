@@ -18,7 +18,7 @@ function AdminProducts() {
   const itemsPerPage = 10;
 
   // API Base URL
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || window.__APP_CONFIG__?.API_BASE_URL || '';
+  const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 
   const fetchProducts = async () => {
     try {
@@ -143,7 +143,7 @@ function AdminProducts() {
     }
 
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
       const response = await fetch(`${API_BASE_URL}/api/products/${product.id}`, {
         method: 'DELETE',
         headers: {
@@ -166,7 +166,7 @@ function AdminProducts() {
 
   const handleToggleVisibility = async (product) => {
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
       const response = await fetch(`${API_BASE_URL}/api/products/${product.id}`, {
         method: 'PATCH',
         headers: {

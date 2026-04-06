@@ -32,7 +32,7 @@ export default function ReviewForm() {
 
     try {
       // Normalize base URL (remove trailing slash)
-      const base = (import.meta.env.VITE_API_BASE_URL || window.__APP_CONFIG__?.API_BASE_URL || '').replace(/\/$/, '');
+      const base = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
       // Submit to backend API (saves to database with pending status)
       const response = await fetch(`${base}/api/reviews`, {
         method: 'POST',

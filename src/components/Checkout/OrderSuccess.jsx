@@ -1,8 +1,11 @@
+'use client';
 import React from "react";
+import { useRouter } from "next/navigation";
 import getImageUrl from '../../utils/imageUrl';
 import PushToggle from '../Notifications/PushToggle';
 
 export default function OrderSuccess({ order, onClose }) {
+  const router = useRouter();
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-80 flex items-center justify-center p-2 sm:p-6">
       <div className="bg-white rounded-xl shadow-2xl w-[95vw] sm:w-full max-w-sm sm:max-w-2xl p-2 sm:p-8 max-h-[90vh] overflow-y-auto">
@@ -210,14 +213,17 @@ export default function OrderSuccess({ order, onClose }) {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <button
-              onClick={() => window.location.href = `/track-order/${order.id}`}
-              className="flex-1 px-4 py-2 sm:px-8 sm:py-4 bg-white border-2 border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-all font-semibold text-base sm:text-xl"
+              onClick={() => {
+                if (onClose) onClose();
+                router.push(`/track-order/${order.id}`);
+              }}
+              className="flex-1 px-4 py-2 sm:px-8 sm:py-4 bg-white border-2 border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-all font-semibold text-sm sm:text-lg"
             >
               Track Order
             </button>
             <button
               onClick={onClose}
-              className="flex-1 px-4 py-2 sm:px-8 sm:py-4 bg-linear-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:from-purple-700 hover:to-pink-600 transition-all font-semibold text-base sm:text-xl"
+              className="flex-1 px-4 py-2 sm:px-8 sm:py-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:shadow-lg transition-all font-semibold text-sm sm:text-lg"
             >
               Continue Shopping
             </button>
@@ -227,8 +233,7 @@ export default function OrderSuccess({ order, onClose }) {
           <div className="text-center text-sm text-gray-500 pt-2">
             <p className="text-xs sm:text-base">Questions about your order?</p>
             <a
-              href={`https://www.instagram.com/${import.meta.env.VITE_INSTAGRAM_USERNAME
-                }`}
+              href={`https://www.instagram.com/${process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME || 'coolcache.app'}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-purple-600 hover:text-purple-700 font-medium text-xs sm:text-base"

@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import ProductCard from '../ProductCard/ProductCard';
 import { fetchProducts as fetchProductsFromCache } from '../../utils/productCache';
 
 const AllRecommendations = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || window.__APP_CONFIG__?.API_BASE_URL || '').replace(/\/$/, '');
-  const API_PRODUCTS = import.meta.env.VITE_API_PRODUCTS || window.__APP_CONFIG__?.API_PRODUCTS || '/api/products';
+  const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+  const API_PRODUCTS = process.env.NEXT_PUBLIC_API_PRODUCTS || '/api/products';
 
   useEffect(() => {
     const fetchRecommendations = async () => {
@@ -15,7 +15,7 @@ const AllRecommendations = () => {
         setLoading(true);
         
         // Get view history from localStorage
-        const history = JSON.parse(localStorage.getItem('coolcacheViewHistory') || '[]');
+        const history = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('coolcacheViewHistory') || '[]') : [];
         
         if (history.length === 0) {
           // If no history, fetch trending products (cached short-term)
@@ -27,7 +27,9 @@ const AllRecommendations = () => {
             const data = await fetchProductsFromCache({ baseUrl: API_BASE_URL, path: API_PRODUCTS, pageSize: 20, ttl: 1000 * 60 * 5 });
             const list = data.products || data || [];
             setProducts(list);
-            try { localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data: list })); } catch(e) {}
+            if (typeof window !== 'undefined') {
+              try { localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data: list })); } catch(e) {}
+            }
           }
         } else {
           // Extract unique categories from history and fetch in parallel (flatten arrays)
@@ -92,7 +94,7 @@ const AllRecommendations = () => {
               Start browsing products to get personalized recommendations
             </p>
             <Link
-              to="/"
+              href="/"
               className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-full hover:from-purple-700 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
               Browse Products
@@ -120,7 +122,7 @@ const AllRecommendations = () => {
             {/* Back to Home */}
             <div className="text-center mt-12">
               <Link
-                to="/"
+                href="/"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-full hover:from-purple-700 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

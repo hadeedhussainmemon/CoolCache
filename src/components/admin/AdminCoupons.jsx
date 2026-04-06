@@ -17,15 +17,12 @@ export default function AdminCoupons() {
         usageLimit: ''
     });
 
-    const API_BASE_URL = useMemo(() =>
-        (import.meta.env.VITE_API_BASE_URL || window.__APP_CONFIG__?.API_BASE_URL || '').replace(/\/$/, ''),
-        []
-    );
+    const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 
     const fetchCoupons = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('adminToken');
+            const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
             const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
             const response = await fetch(`${API_BASE_URL}/api/coupons`, { headers });
@@ -48,7 +45,7 @@ export default function AdminCoupons() {
     const handleDelete = async (id) => {
         if (!confirm('Are you sure you want to delete this coupon?')) return;
         try {
-            const token = localStorage.getItem('adminToken');
+            const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
             const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
             const response = await fetch(`${API_BASE_URL}/api/coupons/${id}`, {
@@ -68,7 +65,7 @@ export default function AdminCoupons() {
         e.preventDefault();
         try {
             setCreating(true);
-            const token = localStorage.getItem('adminToken');
+            const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
             const headers = {
                 'Content-Type': 'application/json',
                 ...(token ? { 'Authorization': `Bearer ${token}` } : {})

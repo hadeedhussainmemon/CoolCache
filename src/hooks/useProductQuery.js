@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || window.__APP_CONFIG__?.API_BASE_URL || '';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 export const fetchProductFn = async ({ queryKey }) => {
     const [_, idOrSlug] = queryKey;

@@ -1,18 +1,20 @@
 import React, { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 const Analytics = () => {
-  const location = useLocation();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     // Track page views
     if (typeof window.gtag !== 'undefined') {
+      const url = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
       window.gtag('event', 'page_view', {
-        page_path: location.pathname + location.search,
+        page_path: url,
         page_title: document.title,
       });
     }
-  }, [location]);
+  }, [pathname, searchParams]);
 
   return null; // This component doesn't render anything
 };

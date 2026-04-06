@@ -1,19 +1,20 @@
+'use client';
 
 import React from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useRouter, usePathname } from "next/navigation";
 import PushToggle from "../Notifications/PushToggle";
 
 const Footer = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname();
 
   // Smooth scroll function - works on all pages
   const scrollToSection = (e, sectionId) => {
     e.preventDefault();
 
     // If not on home page, navigate to home first
-    if (location.pathname !== "/") {
-      navigate("/");
+    if (pathname !== "/") {
+      router.push("/");
       // Wait for navigation, then scroll
       setTimeout(() => {
         const element = document.getElementById(sectionId);
@@ -52,7 +53,7 @@ const Footer = () => {
               Everything in one cart — a curated marketplace for everyday needs and special finds. Quality products across categories, delivered with care.
             </p>
             <a
-              href={`https://www.instagram.com/${import.meta.env.VITE_INSTAGRAM_USERNAME}`}
+              href={`https://www.instagram.com/${process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME || 'coolcache'}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block text-gray-600 hover:text-purple-700 transition-colors duration-200"
@@ -113,7 +114,7 @@ const Footer = () => {
             <ul className="mt-4 space-y-4">
               <li>
                 <button
-                  onClick={() => navigate('/track-order')}
+                  onClick={() => router.push('/track-order')}
                   className="text-gray-600 hover:text-purple-600 transition-colors duration-200"
                 >
                   Track Order
@@ -158,7 +159,7 @@ const Footer = () => {
               </p>
               <div className="flex items-center gap-4 flex-wrap">
                 <a
-                  href={`https://www.instagram.com/${import.meta.env.VITE_INSTAGRAM_USERNAME}`}
+                  href={`https://www.instagram.com/${process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME || 'coolcache'}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group inline-flex items-center space-x-2 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent transform transition-transform duration-300 hover:scale-105"
@@ -175,11 +176,11 @@ const Footer = () => {
                     </defs>
                     <path fill="url(#instagramGradient)" d="M12 2c2.717 0 3.056.01 4.122.06 1.065.05 1.79.217 2.428.465.66.254 1.216.598 1.772 1.153.509.5.902 1.105 1.153 1.772.247.637.415 1.363.465 2.428.047 1.066.06 1.405.06 4.122 0 2.717-.01 3.056-.06 4.122-.05 1.065-.218 1.79-.465 2.428a4.883 4.883 0 01-1.153 1.772c-.5.508-1.105.902-1.772 1.153-.637.247-1.363.415-2.428.465-1.066.047-1.405.06-4.122.06-2.717 0-3.056-.01-4.122-.06-1.065-.05-1.79-.218-2.428-.465a4.89 4.89 0 01-1.772-1.153 4.904 4.904 0 01-1.153-1.772c-.248-.637-.415-1.363-.465-2.428C2.013 15.056 2 14.717 2 12c0-2.717.01-3.056.06-4.122.05-1.066.217-1.79.465-2.428a4.88 4.88 0 011.153-1.772A4.897 4.897 0 015.45 2.525c.638-.248 1.362-.415 2.428-.465C8.944 2.013 9.283 2 12 2zm0 5a5 5 0 100 10 5 5 0 000-10zm6.5-.25a1.25 1.25 0 10-2.5 0 1.25 1.25 0 002.5 0zM12 9a3 3 0 110 6 3 3 0 010-6z" />
                   </svg>
-                  <span>@{import.meta.env.VITE_INSTAGRAM_USERNAME}</span>
+                  <span>@{process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME || 'coolcache'}</span>
                 </a>
 
                 <a
-                  href={`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '923121842124'}`}
+                  href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923121842124'}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-green-600 hover:text-green-700 font-medium"
@@ -206,14 +207,14 @@ const Footer = () => {
                   Facebook
                 </a>
               </div>
-              {import.meta.env.VITE_CONTACT_EMAIL && (
+            {process.env.NEXT_PUBLIC_CONTACT_EMAIL && (
                 <p className="text-gray-700 text-sm">
                   Email us:{' '}
                   <a
-                    href={`mailto:${import.meta.env.VITE_CONTACT_EMAIL}`}
+                    href={`mailto:${process.env.NEXT_PUBLIC_CONTACT_EMAIL}`}
                     className="text-purple-700 hover:text-purple-800 transition-colors duration-200"
                   >
-                    {import.meta.env.VITE_CONTACT_EMAIL}
+                    {process.env.NEXT_PUBLIC_CONTACT_EMAIL}
                   </a>
                 </p>
               )}

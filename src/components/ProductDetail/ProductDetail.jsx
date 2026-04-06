@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useCart } from '../../context/CartContext';
 import { useProductQuery } from '../../hooks/useProductQuery';
 import useTrackProductView from '../../hooks/useTrackProductView';
-import SEO from '../SEO/SEO';
 import getImageUrl from '../../utils/imageUrl';
 import Breadcrumb from '../Breadcrumb/Breadcrumb';
 import ProductCard from '../ProductCard/ProductCard';
@@ -14,7 +14,7 @@ import ProductDetailSkeleton from '../Skeletons/ProductDetailSkeleton';
 
 const ProductDetail = () => {
   const { idOrSlug } = useParams();
-  const navigate = useNavigate();
+  const router = useRouter();
   // React Query Fetch
   const { data: product, isLoading: loading, error: queryError } = useProductQuery(idOrSlug);
   const error = queryError ? queryError.message : null;
@@ -35,7 +35,7 @@ const ProductDetail = () => {
     }
   }, [product]);
 
-  const API_BASE_URL = useMemo(() => (import.meta.env.VITE_API_BASE_URL || window.__APP_CONFIG__?.API_BASE_URL || '').replace(/\/$/, ''), []);
+  const API_BASE_URL = useMemo(() => (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, ''), []);
 
   // Effect removed (now handled by useProductQuery)
 
@@ -61,7 +61,7 @@ const ProductDetail = () => {
   };
 
   // Structured data for SEO
-  const IMAGE_FALLBACK = `${window.location.origin}/og-image.jpg`;
+  const IMAGE_FALLBACK = typeof window !== 'undefined' ? `${window.location.origin}/og-image.jpg` : '/og-image.jpg';
   let imageUrl = product && product.image ? getImageUrl(product.image) : IMAGE_FALLBACK;
 
   // Ensure absolute URL for OG tags
@@ -71,7 +71,7 @@ const ProductDetail = () => {
     // If getImageUrl returns relative path, we need to know relative to what.
     // Assuming relative to current origin if it starts with /
     if (imageUrl.startsWith('/')) {
-      imageUrl = `${window.location.origin}${imageUrl}`;
+      imageUrl = typeof window !== 'undefined' ? `${window.location.origin}${imageUrl}` : imageUrl;
     }
   }
 
@@ -151,26 +151,19 @@ const ProductDetail = () => {
   };
 
   const breadcrumbItems = [
-    { name: 'Home', to: '/' },
-    { name: categoryLabel || 'Category', to: `/category/${categorySlug}` },
-    { name: product.title, to: null } // Current page
+    { name: 'Home', href: '/' },
+    { name: categoryLabel || 'Category', href: `/category/${categorySlug}` },
+    { name: product.title, href: null } // Current page
   ];
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24">
-      <SEO
-        title={`${product.title} | CoolCache Pakistan`}
-        description={`Buy ${product.title} - ${String(product.description || '').substring(0, 150)}... | CoolCache Pakistan`}
-        canonical={`https://www.coolcache.app/product/${product.slug || product.id}`}
-        image={imageUrl}
-        type="product"
-      />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
 
       <div className="mb-6">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => router.back()}
           className="mb-4 flex items-center gap-2 text-sm text-gray-500 hover:text-purple-600 transition-colors group"
         >
           <svg className="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -270,7 +263,7 @@ const ProductDetail = () => {
           <div className="flex flex-col sm:flex-row gap-3 mb-4">
             {product.price === 0 ? (
               <a
-                href={`https://www.instagram.com/${import.meta.env.VITE_INSTAGRAM_USERNAME || window.__APP_CONFIG__?.INSTAGRAM_USERNAME || 'coolcache.app'}`}
+                href={`https://www.instagram.com/${process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME || 'coolcache.app'}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-5 py-3 rounded-lg text-white bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 flex items-center justify-center gap-2"
@@ -364,7 +357,6 @@ const ProductDetail = () => {
       </div>
 
       {/* Sticky mobile CTA */}
-      {/* Sticky mobile CTA */}
       <div className="md:hidden fixed bottom-16 left-0 right-0 z-30 bg-white/90 backdrop-blur-xl border-t border-gray-100 p-3 flex items-center gap-3 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] animate-slide-up">
         {/* Price display removed to save space for big buttons, or kept compact */}
         <div className="flex-1 flex gap-3">
@@ -385,7 +377,7 @@ const ProductDetail = () => {
             </>
           ) : (
             !isSoldOut ? (
-              <a href={`https://www.instagram.com/${import.meta.env.VITE_INSTAGRAM_USERNAME || window.__APP_CONFIG__?.INSTAGRAM_USERNAME || 'coolcache.app'}`} target="_blank" rel="noopener noreferrer" className="w-full flex justify-center py-3 rounded-xl text-white bg-gradient-to-r from-pink-600 to-purple-600 font-bold shadow-lg">Ask Price on Instagram</a>
+              <a href={`https://www.instagram.com/${process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME || 'coolcache.app'}`} target="_blank" rel="noopener noreferrer" className="w-full flex justify-center py-3 rounded-xl text-white bg-gradient-to-r from-pink-600 to-purple-600 font-bold shadow-lg">Ask Price on Instagram</a>
             ) : (
               <button disabled className="w-full py-3 rounded-xl bg-gray-100 text-gray-400 font-bold cursor-not-allowed">Sold Out</button>
             )
@@ -399,7 +391,7 @@ const ProductDetail = () => {
 const RelatedProducts = ({ currentId, category }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const API_BASE_URL = useMemo(() => (import.meta.env.VITE_API_BASE_URL || window.__APP_CONFIG__?.API_BASE_URL || '').replace(/\/$/, ''), []);
+  const API_BASE_URL = useMemo(() => (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, ''), []);
 
   useEffect(() => {
     async function fetchRelated() {

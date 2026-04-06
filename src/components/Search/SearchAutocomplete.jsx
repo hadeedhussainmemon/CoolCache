@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
 import useRecentSearches, { addSearchTerm, getAllRecentSearchTerms, clearRecentSearches } from '../../hooks/useRecentSearches';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || window.__APP_CONFIG__?.API_BASE_URL || '';
-const API_PRODUCTS = import.meta.env.VITE_API_PRODUCTS || window.__APP_CONFIG__?.API_PRODUCTS || '/api/products';
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+const API_PRODUCTS = '/api/products';
 import getImageUrl from '../../utils/imageUrl';
 
 const SearchAutocomplete = ({ value, onChange, onSubmit, placeholder = 'Search products...', className = '', enableAutocomplete = true, showOnlySearchSuggestions = false, enableVoice = false, showTrendingSuggestions = false, showSectionHeaders = false }) => {
@@ -17,8 +18,8 @@ const SearchAutocomplete = ({ value, onChange, onSubmit, placeholder = 'Search p
   const wrapperRef = useRef(null);
   const inputRef = useRef(null);
   const abortControllerRef = useRef(null);
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname();
   const recent = useRecentSearches();
 
   // Note: normalize image path via shared util getImageUrl()
@@ -60,7 +61,7 @@ const SearchAutocomplete = ({ value, onChange, onSubmit, placeholder = 'Search p
         }
       } else setCategorySuggestions([]);
 
-      if ((enableAutocomplete || showOnlySearchSuggestions) && document.activeElement === inputRef.current) setShowDropdown(true);
+      if (typeof document !== 'undefined' && (enableAutocomplete || showOnlySearchSuggestions) && document.activeElement === inputRef.current) setShowDropdown(true);
       setSelectedIndex(-1);
     } catch (error) {
       if (error.name !== 'AbortError') {
@@ -100,7 +101,7 @@ const SearchAutocomplete = ({ value, onChange, onSubmit, placeholder = 'Search p
     if (!q || q.length < 2) {
       if (showOnlySearchSuggestions) {
         // Only show if focused
-        if (document.activeElement === inputRef.current) {
+        if (typeof document !== 'undefined' && document.activeElement === inputRef.current) {
           setShowDropdown((recentSearches.length > 0) || (showTrendingSuggestions && trendingTerms.length > 0));
         }
         setSuggestions([]);
@@ -168,7 +169,7 @@ const SearchAutocomplete = ({ value, onChange, onSubmit, placeholder = 'Search p
       e.preventDefault();
       if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
         const product = suggestions[selectedIndex];
-        navigate(`/product/${product.slug || product.id}`);
+        router.push(`/product/${product.slug || product.id}`);
         setShowDropdown(false);
         inputRef.current?.blur();
         // only show dropdown when autocomplete enabled
@@ -237,7 +238,7 @@ const SearchAutocomplete = ({ value, onChange, onSubmit, placeholder = 'Search p
             const productIndex = selectedIndex - categorySuggestions.length;
             if (productIndex >= 0 && productIndex < suggestions.length) {
               const product = suggestions[productIndex];
-              navigate(`/product/${product.slug || product.id}`);
+              router.push(`/product/${product.slug || product.id}`);
               setShowDropdown(false);
               inputRef.current?.blur();
               // record the search term
@@ -269,12 +270,13 @@ const SearchAutocomplete = ({ value, onChange, onSubmit, placeholder = 'Search p
     try { addSearchTerm(value); } catch (err) { }
     logEvent('result_click', { term: value, productId: product.id, slug: product.slug });
     // If not on /search, push a /search?q= entry so Back returns to search results
-    if (location.pathname !== '/search') {
+    // If not on /search, push a /search?q= entry so Back returns to search results
+    if (pathname !== '/search') {
       // push search entry to history
-      try { navigate(`/search?q=${encodeURIComponent(value)}`); } catch (e) { }
+      try { router.push(`/search?q=${encodeURIComponent(value)}`); } catch (e) { }
     }
     // navigate to product
-    navigate(`/product/${product.slug || product.id}`);
+    router.push(`/product/${product.slug || product.id}`);
     setShowDropdown(false);
     setSelectedIndex(-1);
     setCategorySuggestions([]);
@@ -288,7 +290,7 @@ const SearchAutocomplete = ({ value, onChange, onSubmit, placeholder = 'Search p
     setCategorySuggestions([]);
     setSuggestions([]);
     onChange('');
-    navigate(`/category/${slug}`);
+    router.push(`/category/${slug}`);
   };
 
   async function logEvent(type, payload) {
@@ -299,7 +301,7 @@ const SearchAutocomplete = ({ value, onChange, onSubmit, placeholder = 'Search p
     onChange(term);
     try { addSearchTerm(term); } catch (_) { }
     logEvent('suggestion_click', { term, source });
-    if (onSubmit) onSubmit(term); else navigate(`/?q=${encodeURIComponent(term)}`);
+    if (onSubmit) onSubmit(term); else router.push(`/?q=${encodeURIComponent(term)}`);
     setShowDropdown(false);
     inputRef.current?.blur();
   };
@@ -315,6 +317,7 @@ const SearchAutocomplete = ({ value, onChange, onSubmit, placeholder = 'Search p
 
   // Voice search (Web Speech API)
   const startVoice = () => {
+    if (typeof window === 'undefined') return;
     try {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) return;
@@ -486,7 +489,7 @@ const SearchAutocomplete = ({ value, onChange, onSubmit, placeholder = 'Search p
                   aria-selected={selectedIndex === cIndex}
                 >
                   <div className="flex-shrink-0 w-12 h-12 bg-gray-100 rounded-lg overflow-hidden">
-                    <img src={getImageUrl(c.image)} alt={c.name} className="w-full h-full object-cover" loading="lazy" onError={(e) => { try { e.target.onerror = null; e.target.src = `${window.location.origin}/og-image.jpg`; } catch (_) { } }} />
+                    <img src={getImageUrl(c.image)} alt={c.name} className="w-full h-full object-cover" loading="lazy" onError={(e) => { try { e.target.onerror = null; e.target.src = '/og-image.jpg'; } catch (_) { } }} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-semibold text-gray-900 truncate">{c.name}</div>
@@ -512,7 +515,7 @@ const SearchAutocomplete = ({ value, onChange, onSubmit, placeholder = 'Search p
           {suggestions.map((product, index) => (
             <Link
               key={product.id}
-              to={`/product/${product.slug || product.id}`}
+              href={`/product/${product.slug || product.id}`}
               onClick={(e) => handleSuggestionNavigate(e, product)}
               className={`flex items-center gap-3 p-3 hover:bg-purple-500/5 transition-colors duration-150 border-b border-gray-100/50 last:border-0 ${(categorySuggestions.length + index) === selectedIndex ? 'bg-purple-500/10' : ''
                 }`}
@@ -526,7 +529,7 @@ const SearchAutocomplete = ({ value, onChange, onSubmit, placeholder = 'Search p
                   alt={product.title}
                   className="w-full h-full object-cover"
                   loading="lazy"
-                  onError={(e) => { try { e.target.onerror = null; e.target.src = `${window.location.origin}/og-image.jpg`; } catch (_) { } }}
+                  onError={(e) => { try { e.target.onerror = null; e.target.src = '/og-image.jpg'; } catch (_) { } }}
                 />
               </div>
 
@@ -578,7 +581,7 @@ const SearchAutocomplete = ({ value, onChange, onSubmit, placeholder = 'Search p
                     return;
                   }
                   // Fallback navigation
-                  navigate(`/?q=${encodeURIComponent(value)}`);
+                  router.push(`/?q=${encodeURIComponent(value)}`);
                 }}
                 className="w-full text-center text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors"
               >

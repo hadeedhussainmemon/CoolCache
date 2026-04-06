@@ -1,11 +1,18 @@
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
 import AllRecommendations from '../AllRecommendations';
 
 beforeEach(() => {
   localStorage.clear();
   vi.stubGlobal('fetch', vi.fn());
+  vi.mock('next/navigation', () => ({
+    useRouter: () => ({
+      push: vi.fn(),
+      replace: vi.fn(),
+      back: vi.fn(),
+      prefetch: vi.fn(),
+    }),
+  }));
 });
 
 describe('AllRecommendations', () => {
@@ -19,9 +26,7 @@ describe('AllRecommendations', () => {
     });
 
     render(
-      <MemoryRouter>
-        <AllRecommendations />
-      </MemoryRouter>
+      <AllRecommendations />
     );
 
     await waitFor(() => expect(screen.getByText('Recommended for You')).toBeInTheDocument());

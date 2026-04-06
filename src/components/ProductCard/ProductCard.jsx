@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { useQueryClient } from '@tanstack/react-query';
 import { fetchProductFn } from '../../hooks/useProductQuery';
 import { useCart } from '../../context/CartContext';
@@ -38,7 +38,7 @@ const ProductCard = (inputProps) => {
     const isWishlisted = isInWishlist(id);
 
     // Inline image fallback to avoid broken images
-    const IMAGE_FALLBACK = `${window.location.origin}/og-image.jpg`;
+    const IMAGE_FALLBACK = typeof window !== 'undefined' ? `${window.location.origin}/og-image.jpg` : '/og-image.jpg';
 
     // Calculate 20% discount display
     const originalPrice = Math.round(price / 0.8); // Reverse calculate to show "original"
@@ -81,7 +81,8 @@ const ProductCard = (inputProps) => {
             return;
         }
 
-        const productUrl = `${window.location.origin}/product/${slug || id}`;
+        const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.coolcache.app';
+        const productUrl = `${origin}/product/${slug || id}`;
         const message = `Check out this product: ${title} - Rs. ${Number(price).toLocaleString('en-PK')}\n${productUrl}`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
@@ -139,7 +140,7 @@ const ProductCard = (inputProps) => {
                 {/* ... existing meta tags ... */}
                 <div className="relative w-full">
                     <Link
-                        to={`/product/${slug || id}`}
+                        href={`/product/${slug || id}`}
                         className="block overflow-hidden rounded-t-xl hover:rounded-t-2xl transition-all duration-300"
                         tabIndex={-1}
                         style={{ position: 'relative' }}
@@ -247,7 +248,7 @@ const ProductCard = (inputProps) => {
                             {title}
                         </h2>
                     ) : (
-                        <Link to={`/product/${slug || id}`} itemProp="url">
+                        <Link href={`/product/${slug || id}`} itemProp="url">
                             <h2 className="text-sm sm:text-base md:text-lg font-playfair font-semibold text-gray-900 text-center mt-1.5 sm:mt-2 mb-1 line-clamp-2 hover:text-purple-600 transition-colors min-h-[36px] sm:min-h-[44px]" itemProp="name">
                                 {title}
                             </h2>
@@ -341,7 +342,7 @@ const ProductCard = (inputProps) => {
                             </button>
                         ) : (
                             <a
-                                href={`https://www.instagram.com/${import.meta.env.VITE_INSTAGRAM_USERNAME}`}
+                                href={`https://www.instagram.com/${process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME || 'coolcache'}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={(e) => { if (isSoldOut) e.preventDefault(); }}

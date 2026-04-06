@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { BarChart3, ShoppingCart, Package, Menu, X, LogOut, Bell, Ticket } from 'lucide-react';
 
 const SidebarLink = ({ children, onClick, active, icon: Icon }) => (
@@ -15,6 +16,7 @@ const SidebarLink = ({ children, onClick, active, icon: Icon }) => (
 );
 
 const AdminLayout = ({ children, section = 'dashboard', onSectionChange }) => {
+  const router = useRouter();
   const [currentSection, setCurrentSection] = useState(section);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -37,7 +39,7 @@ const AdminLayout = ({ children, section = 'dashboard', onSectionChange }) => {
   const handleLogout = () => {
     if (confirm('Are you sure you want to logout?')) {
       localStorage.removeItem('adminToken');
-      window.location.href = '/admin/login';
+      router.push('/admin');
     }
   };
 

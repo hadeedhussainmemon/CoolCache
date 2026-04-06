@@ -37,7 +37,14 @@ async function fetchProducts(params = {}) {
       const base = (baseUrl || '').replace(/\/$/, '');
       const apiPath = path.startsWith('/') ? path : `/${path}`;
       const urlBase = base ? `${base}${apiPath}` : apiPath;
-      const url = new URL(urlBase, window.location.origin);
+      
+      let url;
+      if (typeof window !== 'undefined') {
+        url = new URL(urlBase, window.location.origin);
+      } else {
+        // Fallback for SSR/static generation - use a dummy base if relative
+        url = new URL(urlBase, 'http://localhost');
+      }
 
       if (params.page) url.searchParams.set('page', String(params.page));
       if (params.pageSize) url.searchParams.set('pageSize', String(params.pageSize));

@@ -1,3 +1,4 @@
+'use client';
 import React, { useState } from 'react';
 import { useCart } from '../../context/CartContext';
 
@@ -71,7 +72,7 @@ export default function CheckoutForm({ onBack, onSuccess, appliedCoupon }) {
         couponCode: appliedCoupon ? appliedCoupon.code : null
       };
 
-      const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+      const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
       const response = await fetch(`${API_BASE_URL}/api/orders`, {
         method: 'POST',
         headers: {

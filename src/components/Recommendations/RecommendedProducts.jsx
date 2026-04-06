@@ -1,5 +1,6 @@
+'use client';
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import ProductCard from '../ProductCard/ProductCard';
 
 
@@ -9,8 +10,8 @@ const RecommendedProducts = () => {
 
   useEffect(() => {
     // Get browsing history from localStorage
-    const viewedProducts = JSON.parse(localStorage.getItem('coolcacheViewHistory') || '[]');
-    const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || window.__APP_CONFIG__?.API_BASE_URL || '').replace(/\/$/, '');
+    const viewedProducts = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('coolcacheViewHistory') || '[]') : [];
+    const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 
     // Fetch recommendations based on viewed categories
     async function fetchRecommendations() {
@@ -102,7 +103,7 @@ const RecommendedProducts = () => {
           <p className="text-gray-600">Based on your browsing history</p>
         </div>
         <Link
-          to="/recommendations"
+          href="/recommendations"
           className="flex items-center gap-2 text-purple-600 hover:text-purple-700 font-semibold"
         >
           <span className="inline">View All</span>

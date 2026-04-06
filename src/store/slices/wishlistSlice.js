@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const loadWishlist = () => {
+    if (typeof window === 'undefined') return [];
     try {
         const saved = localStorage.getItem('coolcacheWishlist');
         return saved ? JSON.parse(saved) : [];
@@ -30,12 +31,16 @@ const wishlistSlice = createSlice({
                 state.items.push(product);
                 state.toast = { message: `${product.title} added to wishlist!`, type: 'success' };
             }
-            localStorage.setItem('coolcacheWishlist', JSON.stringify(state.items));
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('coolcacheWishlist', JSON.stringify(state.items));
+            }
         },
         clearWishlist: (state) => {
             state.items = [];
             state.toast = { message: 'Wishlist cleared', type: 'info' };
-            localStorage.setItem('coolcacheWishlist', JSON.stringify([]));
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('coolcacheWishlist', JSON.stringify([]));
+            }
         },
         clearToast: (state) => {
             state.toast = null;

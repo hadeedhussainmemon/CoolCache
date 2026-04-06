@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Search, Home, ArrowLeft } from 'lucide-react';
 
 export default function NotFound() {
-    const navigate = useNavigate();
+    const router = useRouter();
     const [searchQuery, setSearchQuery] = useState('');
 
     const handleSearch = (e) => {
         e.preventDefault();
         if (searchQuery.trim()) {
-            navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+            router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
         }
     };
 
@@ -69,7 +70,7 @@ export default function NotFound() {
                 {categories.map((cat) => (
                     <Link
                         key={cat.slug}
-                        to={`/category/${cat.slug}`}
+                        href={`/category/${cat.slug}`}
                         className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-100 rounded-full text-sm font-medium text-gray-600 hover:border-purple-200 hover:bg-purple-50 hover:text-purple-700 transition-all shadow-sm hover:shadow-md"
                     >
                         <span>{cat.emoji}</span>
@@ -81,14 +82,14 @@ export default function NotFound() {
             {/* Action Buttons */}
             <div className="flex gap-4">
                 <button
-                    onClick={() => navigate(-1)}
+                    onClick={() => router.back()}
                     className="flex items-center gap-2 px-6 py-3 rounded-xl border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all"
                 >
                     <ArrowLeft size={18} />
                     Go Back
                 </button>
                 <Link
-                    to="/"
+                    href="/"
                     className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold shadow-lg shadow-purple-200 hover:shadow-xl hover:scale-105 transition-all"
                 >
                     <Home size={18} />

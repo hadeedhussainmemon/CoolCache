@@ -18,6 +18,7 @@ const SEARCH_TO_CATEGORY_KEYWORDS = {
 };
 
 function readStorage() {
+  if (typeof window === 'undefined') return { terms: {}, order: [] };
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { terms: {}, order: [] };
@@ -28,6 +29,7 @@ function readStorage() {
 }
 
 function writeStorage(data) {
+  if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch (e) {
@@ -36,6 +38,7 @@ function writeStorage(data) {
 }
 
 export function clearRecentSearches() {
+  if (typeof window === 'undefined') return;
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch (_) { }

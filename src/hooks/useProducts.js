@@ -8,8 +8,8 @@ const useProducts = ({ page = 1, pageSize = 12, signal, search } = {}) => {
   const [currentPage, setCurrentPage] = useState(page);
   const [currentPageSize, setCurrentPageSize] = useState(pageSize);
 
-  const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || window.__APP_CONFIG__?.API_BASE_URL || '').replace(/\/$/, '');
-  const API_PRODUCTS = (import.meta.env.VITE_API_PRODUCTS || window.__APP_CONFIG__?.API_PRODUCTS || '/api/products');
+  const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+  const API_PRODUCTS = (process.env.NEXT_PUBLIC_API_PRODUCTS || '/api/products');
 
   const fetchProducts = async (p = currentPage, ps = currentPageSize, retryAttempt = 0) => {
     if (retryAttempt === 0) {
@@ -19,10 +19,10 @@ const useProducts = ({ page = 1, pageSize = 12, signal, search } = {}) => {
 
     // Prepare session seed for server-side seeded shuffle
     const seedKey = 'coolcache_products_seed';
-    let seed = sessionStorage.getItem(seedKey);
+    let seed = typeof window !== 'undefined' ? sessionStorage.getItem(seedKey) : null;
     if (!seed) {
       seed = String(Math.floor(Math.random() * 1e9));
-      try { sessionStorage.setItem(seedKey, seed); } catch (e) { /* ignore */ }
+      try { if (typeof window !== 'undefined') sessionStorage.setItem(seedKey, seed); } catch (e) { /* ignore */ }
     }
 
     // Build a cache key that includes either the search term or the seed + page so cached pages
@@ -31,7 +31,7 @@ const useProducts = ({ page = 1, pageSize = 12, signal, search } = {}) => {
     
     try {
       // First, try to get from localStorage cache
-      const cached = localStorage.getItem(cacheKey);
+      const cached = typeof window !== 'undefined' ? localStorage.getItem(cacheKey) : null;
       
       if (cached) {
         const { data, timestamp } = JSON.parse(cached);
@@ -89,7 +89,7 @@ const useProducts = ({ page = 1, pageSize = 12, signal, search } = {}) => {
 
       // Cache the successful response in localStorage since data is mostly static
       try {
-        localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data }));
+        if (typeof window !== 'undefined') localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data }));
       } catch (e) {
   // ignore cache failure
       }
@@ -112,7 +112,7 @@ const useProducts = ({ page = 1, pageSize = 12, signal, search } = {}) => {
 
       // Try to use any available cached data as fallback
       try {
-        const fallbackCache = localStorage.getItem(cacheKey);
+        const fallbackCache = typeof window !== 'undefined' ? localStorage.getItem(cacheKey) : null;
         if (fallbackCache) {
           const { data } = JSON.parse(fallbackCache);
           // using cached fallback

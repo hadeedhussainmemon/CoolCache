@@ -1,6 +1,7 @@
+'use client';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import useRecentSearches, { getTrendingCategoriesFromSearches } from '../../hooks/useRecentSearches';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
 function CategoryGrid() {
   const [categories, setCategories] = useState([]);
@@ -12,7 +13,7 @@ function CategoryGrid() {
   const [scrollLeft, setScrollLeft] = useState(0);
   const scrollRef = useRef(null);
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || window.__APP_CONFIG__?.API_BASE_URL || '';
+  const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -236,7 +237,7 @@ function CategoryGrid() {
             {visibleCategories.map((category, idx) => (
               <Link
                 key={`${category.name}-${idx}`}
-                to={`/category/${toSlug(category.name)}`}
+                href={`/category/${toSlug(category.name)}`}
                 className="group/item flex-shrink-0 w-28 snap-start"
               >
                 <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-200 hover:border-purple-300 transition-all duration-300 active:scale-95 h-full flex flex-col items-center justify-between">
@@ -278,7 +279,7 @@ function CategoryGrid() {
               {[...visibleCategories, ...visibleCategories].map((category, idx) => (
                 <Link
                   key={`${category.name}-${idx}`}
-                  to={`/category/${toSlug(category.name)}`}
+                  href={`/category/${toSlug(category.name)}`}
                   className="group/item flex-shrink-0 w-32 snap-center"
                   onClick={(e) => {
                     if (isDragging) e.preventDefault();

@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import { usePushNotification } from '../../hooks/usePushNotification';
 import { Bell, BellRing, Loader2 } from 'lucide-react';

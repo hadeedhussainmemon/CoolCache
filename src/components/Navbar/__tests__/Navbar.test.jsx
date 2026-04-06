@@ -1,14 +1,28 @@
 import { it, expect, describe, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { BrowserRouter as Router } from 'react-router-dom';
 import Navbar from '../Navbar';
 
+const mockedPush = vi.fn();
+
+// Mock next/navigation
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: mockedPush,
+    replace: vi.fn(),
+    back: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+  usePathname: () => '/',
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 describe('Navbar', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
   it('contains Search link to /search', () => {
     render(
-      <Router>
-        <Navbar />
-      </Router>
+      <Navbar />
     );
 
     const searchLink = screen.getByText(/Search/i);
@@ -17,18 +31,11 @@ describe('Navbar', () => {
   });
 
   it('responds to Ctrl/Cmd+K keyboard shortcut to navigate to /search', () => {
-    // Mock useNavigate to capture navigation
-    const mockedNavigate = vi.fn();
-    const rr = require('react-router-dom');
-    vi.spyOn(rr, 'useNavigate').mockImplementation(() => mockedNavigate);
     render(
-      <Router>
-        <Navbar />
-      </Router>
+      <Navbar />
     );
 
     fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
-    expect(mockedNavigate).toHaveBeenCalledWith('/search');
-    vi.restoreAllMocks();
+    expect(mockedPush).toHaveBeenCalledWith('/search');
   });
 });

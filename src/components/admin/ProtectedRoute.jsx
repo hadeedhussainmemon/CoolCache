@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 const ProtectedRoute = ({ children }) => {
+  const router = useRouter();
   const [isValidating, setIsValidating] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
@@ -51,6 +52,12 @@ const ProtectedRoute = ({ children }) => {
     validateToken();
   }, []);
 
+  useEffect(() => {
+    if (!isValidating && !isAuthenticated) {
+      router.push('/admin');
+    }
+  }, [isValidating, isAuthenticated, router]);
+
   if (isValidating) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -60,7 +67,7 @@ const ProtectedRoute = ({ children }) => {
   }
   
   if (!isAuthenticated) {
-    return <Navigate to="/admin/login" replace />;
+    return null; // Effect will handle redirect
   }
 
   return children;

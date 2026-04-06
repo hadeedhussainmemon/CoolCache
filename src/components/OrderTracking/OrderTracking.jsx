@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import SEO from '../SEO/SEO';
+import { useRouter, useParams } from 'next/navigation';
 
 export default function OrderTracking() {
   const { orderId: paramOrderId } = useParams();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [orderId, setOrderId] = useState(paramOrderId || '');
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+  const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -40,9 +39,7 @@ export default function OrderTracking() {
       setOrder(data);
       
       // Update URL without reloading
-      if (window.history.pushState) {
-        window.history.pushState({}, '', `/track-order/${orderId.trim()}`);
-      }
+      router.push(`/track-order/${orderId.trim()}`, { scroll: false });
     } catch (err) {
       setError('Unable to fetch order. Please try again later.');
       console.error('Order fetch error:', err);
@@ -89,11 +86,6 @@ export default function OrderTracking() {
 
   return (
     <>
-      <SEO 
-        title="Track Your Order - CoolCache"
-        description="Track your CoolCache order status and delivery information"
-      />
-      
       <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
@@ -262,12 +254,12 @@ export default function OrderTracking() {
               <p className="text-sm text-gray-500">
                 Contact us on WhatsApp at{' '}
                 <a 
-                  href={`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER}`}
+                  href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}`}
                   className="text-purple-600 hover:underline font-semibold"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {import.meta.env.VITE_WHATSAPP_NUMBER}
+                  {process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}
                 </a>
               </p>
             </div>

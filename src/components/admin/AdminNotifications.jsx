@@ -3,13 +3,13 @@ import { Bell, Mail, Smartphone, Save, Plus, X, AlertCircle } from 'lucide-react
 import { toast } from 'sonner';
 
 // API Base URL - Consistent with other Admin components
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || window.__APP_CONFIG__?.API_BASE_URL || '';
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 
 // Helper for generic API calls
 const apiCall = async (endpoint, method = 'GET', body = null) => {
     const headers = {
         'Content-Type': 'application/json',
-        // 'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+        'Authorization': `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('adminToken') : ''}`
     };
 
     // Construct full URL if API_BASE_URL is present, otherwise use relative

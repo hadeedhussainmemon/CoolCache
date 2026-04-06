@@ -1,25 +1,26 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React, { useState } from 'react';
-import { MemoryRouter } from 'react-router-dom';
 import SearchAutocomplete from '../SearchAutocomplete';
 
-const mockedNavigate = vi.fn();
+const mockedPush = vi.fn();
 
-// Mock react-router-dom
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return {
-    ...actual,
-    useNavigate: () => mockedNavigate,
-  };
-});
+// Mock next/navigation
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: mockedPush,
+    replace: vi.fn(),
+    back: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+  usePathname: () => '/',
+}));
 
 beforeEach(() => {
   // Clear storage and mocks before each test
   localStorage.clear();
   vi.clearAllMocks();
-  mockedNavigate.mockClear();
+  mockedPush.mockClear();
 });
 
 describe('SearchAutocomplete', () => {
@@ -46,9 +47,7 @@ describe('SearchAutocomplete', () => {
     localStorage.setItem('coolcache_recent_searches_v1', JSON.stringify({ terms: { 'bracelet': { term: 'bracelet', count: 1, lastSeen: Date.now() } }, order: ['bracelet'] }));
 
     render(
-      <MemoryRouter>
-        <Wrapper />
-      </MemoryRouter>
+      <Wrapper />
     );
 
     const input = screen.getByRole('combobox');
@@ -83,9 +82,7 @@ describe('SearchAutocomplete', () => {
     }));
 
     render(
-      <MemoryRouter>
-        <Wrapper />
-      </MemoryRouter>
+      <Wrapper />
     );
 
     const input = screen.getByRole('combobox');
@@ -122,9 +119,7 @@ describe('SearchAutocomplete', () => {
     };
 
     render(
-      <MemoryRouter>
-        <Wrapper />
-      </MemoryRouter>
+      <Wrapper />
     );
 
     const input = screen.getByRole('combobox');
@@ -137,9 +132,9 @@ describe('SearchAutocomplete', () => {
 
     // Check navigation
     await waitFor(() => {
-      expect(mockedNavigate).toHaveBeenCalled();
+      expect(mockedPush).toHaveBeenCalled();
     });
-    const calls = mockedNavigate.mock.calls.map(c => c[0]);
+    const calls = mockedPush.mock.calls.map(c => c[0]);
     expect(calls.some(c => c.includes('/search?q='))).toBe(true);
     expect(calls.some(c => c.includes('/product/example-product'))).toBe(true);
   });

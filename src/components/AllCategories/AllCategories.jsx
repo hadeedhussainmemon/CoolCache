@@ -1,12 +1,13 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import getImageUrl from '../../utils/imageUrl';
 import useRecentSearches, { getTrendingCategoriesFromSearches } from '../../hooks/useRecentSearches';
-import { Link, useNavigate } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import PageSkeleton from '../Skeletons/PageSkeleton';
 
 const AllCategories = () => {
-  const API_BASE_URL = useMemo(() => (import.meta.env.VITE_API_BASE_URL || window.__APP_CONFIG__?.API_BASE_URL || '').replace(/\/$/, ''), []);
-  const navigate = useNavigate();
+  const API_BASE_URL = useMemo(() => (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, ''), []);
+  const router = useRouter();
 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -69,10 +70,10 @@ const AllCategories = () => {
   // No client-side alias counts; backend returns categories with counts
 
   const handleBackClick = () => {
-    if (window.history.length > 1) {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
       window.history.back();
     } else {
-      navigate('/');
+      router.push('/');
     }
   };
 
@@ -100,7 +101,7 @@ const AllCategories = () => {
             <h3 className="text-sm font-semibold text-gray-700 mb-2">Trending categories</h3>
             <div className="flex flex-wrap gap-2">
               {trendingNames.map((name) => (
-                <Link key={name} to={`/category/${encodeURIComponent(String(name).trim().toLowerCase().replace(/\s+/g, '-'))}`} className="inline-flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-100 rounded-full text-sm font-semibold text-amber-700 hover:bg-amber-100 transition-all">
+                <Link key={name} href={`/category/${encodeURIComponent(String(name).trim().toLowerCase().replace(/\s+/g, '-'))}`} className="inline-flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-100 rounded-full text-sm font-semibold text-amber-700 hover:bg-amber-100 transition-all">
                   <span>{name}</span>
                 </Link>
               ))}
@@ -113,7 +114,7 @@ const AllCategories = () => {
           {categories.map((category) => (
             <Link
               key={category.name}
-              to={`/category/${encodeURIComponent(String(category.name).trim().toLowerCase().replace(/\s+/g, '-'))}`}
+              href={`/category/${encodeURIComponent(String(category.name).trim().toLowerCase().replace(/\s+/g, '-'))}`}
               className="group relative overflow-hidden rounded-xl md:rounded-2xl bg-white shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-[1.02]"
             >
               {/* Category Image - Square / Slightly taller on mobile */}
@@ -184,7 +185,7 @@ const AllCategories = () => {
           </button>
 
           <Link
-            to="/"
+            href="/"
             className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-lg font-semibold rounded-full hover:from-purple-700 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

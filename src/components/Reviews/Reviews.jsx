@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Reviews = () => {
-  const insta = import.meta.env.VITE_INSTAGRAM_USERNAME || '';
+  const insta = process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME || '';
   const url = `https://www.instagram.com/${insta}`;
 
   return (

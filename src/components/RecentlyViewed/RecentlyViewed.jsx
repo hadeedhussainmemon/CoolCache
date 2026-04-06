@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect } from 'react';
 import ProductCard from '../ProductCard/ProductCard';
 
@@ -9,7 +10,7 @@ const RecentlyViewed = () => {
         setMounted(true);
         try {
             // Parse history from existing localStorage key
-            const history = JSON.parse(localStorage.getItem('coolcacheViewHistory') || '[]');
+            const history = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('coolcacheViewHistory') || '[]') : [];
 
             // We only have basic info in history (id, title, category) plus maybe image/price if stored
             // But typically RecommendedProducts stored: { id, title, category, viewedAt }
@@ -39,7 +40,7 @@ const RecentlyViewed = () => {
 
                 // Fetch all products to find matches (simplest given current API)
                 // Optimization: In a real large app, we'd want an endpoint /api/products/batch?ids=1,2,3
-                const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || window.__APP_CONFIG__?.API_BASE_URL || '').replace(/\/$/, '');
+                const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
                 fetch(`${API_BASE_URL}/api/products?limit=1000`)
                     .then(res => res.json())
                     .then(data => {

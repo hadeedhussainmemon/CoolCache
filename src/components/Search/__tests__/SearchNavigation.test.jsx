@@ -1,11 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import SearchPage from '../SearchPage';
-import ProductDetail from '../../ProductDetail/ProductDetail';
 
 beforeEach(() => {
   vi.restoreAllMocks();
+  vi.mock('next/navigation', () => ({
+    useSearchParams: () => new URLSearchParams('q=ex'),
+    useRouter: () => ({
+      push: vi.fn(),
+      replace: vi.fn(),
+      back: vi.fn(),
+      prefetch: vi.fn(),
+    }),
+  }));
 });
 
 describe('Search navigation back behavior', () => {
@@ -21,25 +28,29 @@ describe('Search navigation back behavior', () => {
       return Promise.resolve({ ok: false, json: () => Promise.resolve({}) });
     }));
 
-    // Render app with routes for search and product detail
+    const mockedPush = vi.fn();
+    vi.mock('next/navigation', () => ({
+      useSearchParams: () => new URLSearchParams('q=ex'),
+      useRouter: () => ({
+        push: mockedPush,
+        replace: vi.fn(),
+        back: vi.fn(),
+        prefetch: vi.fn(),
+      }),
+    }));
+
+    // Render SearchPage
     render(
-      <MemoryRouter initialEntries={["/search?q=ex"]}>
-        <Routes>
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/product/:slug" element={<ProductDetail />} />
-        </Routes>
-      </MemoryRouter>
+      <SearchPage />
     );
 
     // Wait for results to appear
     await waitFor(() => expect(screen.getByText('Example Product')).toBeInTheDocument());
 
-    // Click the product link (should route to product detail)
+    // Click the product link
     fireEvent.click(screen.getByText('Example Product'));
-    await waitFor(() => expect(screen.getByText('Details')).toBeInTheDocument());
-
-    // Simulate back
-    window.history.back();
-    await waitFor(() => expect(screen.getByText('Example Product')).toBeInTheDocument());
+    
+    // Expect router.push to be called with the product URL
+    await waitFor(() => expect(mockedPush).toHaveBeenCalledWith('/product/example-product'));
   });
 });

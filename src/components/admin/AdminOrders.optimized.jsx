@@ -213,10 +213,7 @@ export default function AdminOrders() {
   const [perPage, setPerPage] = useState(8);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
 
-  const API_BASE_URL = useMemo(() =>
-    (import.meta.env.VITE_API_BASE_URL || window.__APP_CONFIG__?.API_BASE_URL || '').replace(/\/$/, ''),
-    []
-  );
+  const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 
   // IMAGE_BASE_URL is deprecated in favor of getImageUrl() utility
 
@@ -227,13 +224,13 @@ export default function AdminOrders() {
         ? `${API_BASE_URL}/api/orders`
         : `${API_BASE_URL}/api/orders?status=${filter}`;
       // Attach admin auth header if available
-      const token = localStorage.getItem('adminToken');
+      const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
       const response = await fetch(url, { headers });
       if (response.status === 401) {
-        localStorage.removeItem('adminToken');
-        window.location.href = '/admin/login';
+        if (typeof window !== 'undefined') localStorage.removeItem('adminToken');
+        window.location.href = '/admin';
         return;
       }
       if (response.status === 503) {
@@ -254,7 +251,7 @@ export default function AdminOrders() {
 
   const fetchStats = useCallback(async () => {
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
       const response = await fetch(`${API_BASE_URL}/api/orders/stats/summary`, { headers });
       if (response.status === 401) {
@@ -305,7 +302,7 @@ export default function AdminOrders() {
 
   const updateOrderStatus = useCallback(async (orderId, newStatus) => {
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
       const headers = { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) };
 
       const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/status`, {
@@ -340,7 +337,7 @@ export default function AdminOrders() {
 
   const updatePaymentStatus = useCallback(async (orderId, paymentStatus) => {
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
       const headers = { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) };
 
       const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/payment`, {
@@ -377,7 +374,7 @@ export default function AdminOrders() {
     if (!confirm('Are you sure you want to delete this order?')) return;
 
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
       const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {

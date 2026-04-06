@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect, useRef, useState } from "react";
 import getImageUrl from '../../utils/imageUrl';
 
@@ -6,7 +7,7 @@ import getImageUrl from '../../utils/imageUrl';
 // - Autoplays slowly (7s), fades between slides, pauses on hover, and shows clickable indicators.
 const Hero = ({ images = null, interval = 4000 }) => {
   // Use the backend-hosted hero images (these exist under Backend/public/images/hero)
-  const API_BASE = import.meta.env.VITE_API_BASE_URL ? String(import.meta.env.VITE_API_BASE_URL).replace(/\/$/, '') : (window.__APP_CONFIG__?.API_BASE_URL || '').replace(/\/$/, '');
+  const API_BASE = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
   // Use centralized getImageUrl for constructing hero image URLs.
   const defaultImages = [
     getImageUrl('/hero/1.avif'),

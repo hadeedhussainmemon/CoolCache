@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
 function makeAbsolute(href, { useCanonicalDomain = false, canonicalDomain = 'https://www.coolcache.app' } = {}) {
   if (!href) return undefined;
@@ -34,7 +34,7 @@ export default function Breadcrumb({ items = [], renderLd = true, className = ''
           <React.Fragment key={`${it.name}-${i}`}>
             {i > 0 && <span className="mx-1.5">/</span>}
             {it.to && i !== items.length - 1 ? (
-              <Link to={it.to} className="hover:text-purple-600 transition-colors">{it.name}</Link>
+              <Link href={it.to} className="hover:text-purple-600 transition-colors">{it.name}</Link>
             ) : (
               <span className="text-gray-800">{it.name}</span>
             )}

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Lock, User, ArrowRight, Loader2, Sparkles } from 'lucide-react';
 
 const AdminLogin = ({ onLogin }) => {
+  const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -14,7 +16,7 @@ const AdminLogin = ({ onLogin }) => {
     setIsLoading(true);
 
     try {
-      const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+      const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
       const response = await fetch(`${API_BASE_URL}/api/admin/login`, {
         method: 'POST',
         headers: {
@@ -26,11 +28,13 @@ const AdminLogin = ({ onLogin }) => {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem('adminToken', data.token);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('adminToken', data.token);
+        }
         // Small delay to show success state
         setTimeout(() => {
           onLogin(data.token);
-          window.location.href = '/admin/dashboard';
+          router.push('/admin/dashboard');
         }, 800);
       } else {
         setError(data.message || 'Login failed');

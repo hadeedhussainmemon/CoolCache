@@ -1,16 +1,24 @@
+'use client';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import SearchAutocomplete from './SearchAutocomplete';
 import ProductCard from '../ProductCard/ProductCard';
 import { getAllRecentSearchTerms } from '../../hooks/useRecentSearches';
 import { aliasMap, compileAliasMap } from '../../utils/aliasMap.esm';
 import ProductCardSkeleton from '../Skeletons/ProductCardSkeleton';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || window.__APP_CONFIG__?.API_BASE_URL || '';
-const API_PRODUCTS = import.meta.env.VITE_API_PRODUCTS || window.__APP_CONFIG__?.API_PRODUCTS || '/api/products';
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+const API_PRODUCTS = (process.env.NEXT_PUBLIC_API_PRODUCTS || '/api/products');
 
 export default function SearchPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const setSearchParams = (params) => {
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   const qParam = searchParams.get('q') || '';
   const initialPageParam = Number(searchParams.get('page') || 1);
   const [query, setQuery] = useState(qParam);

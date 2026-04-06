@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { Upload, X, Save, AlertCircle } from 'lucide-react';
 import getImageUrl from '../../utils/imageUrl';
 
@@ -25,7 +25,7 @@ function AddProduct({ onClose, onProductAdded, product = null, existingCategorie
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
 
-    const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || window.__APP_CONFIG__?.API_BASE_URL || '').replace(/\/$/, '');
+    const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
     const isEditing = !!product;
 
     useEffect(() => {
@@ -128,7 +128,7 @@ function AddProduct({ onClose, onProductAdded, product = null, existingCategorie
                 data.append('image', imageFile);
             }
 
-            const token = localStorage.getItem('adminToken');
+            const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
 
             const url = isEditing
                 ? `${API_BASE_URL}/api/products/${product.id}`
