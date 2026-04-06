@@ -31,7 +31,8 @@ export async function GET(req) {
     const showHidden = searchParams.get('showHidden') === 'true';
 
     const matchStage = {};
-    if (!showHidden) matchStage.isVisible = true;
+    // Temporarily bypass visibility filter for debugging
+    // if (!showHidden) matchStage.isVisible = true;
 
     if (categories.length > 0) {
       const regexCats = categories.map(c => new RegExp(`^${c}$`, 'i'));

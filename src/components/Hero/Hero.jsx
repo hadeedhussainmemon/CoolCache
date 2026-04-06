@@ -9,16 +9,17 @@ const Hero = ({ images = null, interval = 4000 }) => {
   // Use the backend-hosted hero images (these exist under Backend/public/images/hero)
   const API_BASE = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
   // Use centralized getImageUrl for constructing hero image URLs.
+  const IMAGE_CDN = 'https://res.cloudinary.com/dend3adq0/image/upload';
   const defaultImages = [
-    getImageUrl('/hero/1.avif'),
-    getImageUrl('/hero/2.avif'),
-    getImageUrl('/hero/3.avif'),
-    getImageUrl('/hero/4.avif'),
-    getImageUrl('/hero/5.avif'),
-    getImageUrl('/hero/6.avif'),
-    getImageUrl('/hero/7.avif'),
-    getImageUrl('/hero/8.avif'),
-    getImageUrl('/hero/9.avif'),
+    `${IMAGE_CDN}/hero/1.avif`,
+    `${IMAGE_CDN}/hero/2.avif`,
+    `${IMAGE_CDN}/hero/3.avif`,
+    `${IMAGE_CDN}/hero/4.avif`,
+    `${IMAGE_CDN}/hero/5.avif`,
+    `${IMAGE_CDN}/hero/6.avif`,
+    `${IMAGE_CDN}/hero/7.avif`,
+    `${IMAGE_CDN}/hero/8.avif`,
+    `${IMAGE_CDN}/hero/9.avif`,
   ];
   // slidesToShow will contain only images that successfully load.
   const [slidesToShow, setSlidesToShow] = useState([]);
