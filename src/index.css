@@ -81,6 +81,19 @@ body {
   background: #c5a059;
 }
 
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e5e5e5;
+  border-radius: 0;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #c5a059;
+}
+
 /* Text Selection */
 ::selection {
   background-color: #c5a059;

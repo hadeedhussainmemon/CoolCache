@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { Search } from 'lucide-react';
+import React, { useState, useEffect, Suspense, lazy, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Search, ChevronDown, Filter, X } from 'lucide-react';
 import Hero from '@/components/Hero/Hero';
 import ProductCard from '@/components/ProductCard/ProductCard';
 import ProductCardSkeleton from '@/components/Skeletons/ProductCardSkeleton';
@@ -17,220 +17,214 @@ const RecentlyViewed = lazy(() => import('@/components/RecentlyViewed/RecentlyVi
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 const API_PRODUCTS_ENDPOINT = '/api/products';
 
-const PROMOS = [
-    "🚚 Free Shipping on Orders Over Rs. 4999",
-    "✨ New Arrivals: Check out our latest collection!",
-    "🎁 Buy 2 Get 5% Off - Limited Time Offer!"
-];
-
-const fetchProductsQuery = async ({ queryKey }) => {
-    const [_, { category, sort, q, page, pageSize }] = queryKey;
-    const params = new URLSearchParams();
-    if (category && category !== 'All') params.append('category', category);
-    if (q) params.append('q', q);
-    if (sort) params.append('sort', sort);
-    params.append('page', page);
-    params.append('pageSize', pageSize);
-
-    const response = await fetch(`${API_BASE_URL}${API_PRODUCTS_ENDPOINT}?${params.toString()}`);
-    if (!response.ok) throw new Error('Failed to fetch products');
+const fetchAllProducts = async () => {
+    const response = await fetch(`${API_BASE_URL}${API_PRODUCTS_ENDPOINT}`);
+    if (!response.ok) throw new Error('Failed to synchronize archive');
     return response.json();
-};
-
-const fetchCategoriesQuery = async () => {
-    const res = await fetch(`${API_BASE_URL}${API_PRODUCTS_ENDPOINT}/categories`);
-    if (!res.ok) throw new Error('Failed to fetch categories');
-    return res.json();
 };
 
 export default function StoreHomePage() {
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [sortOption, setSortOption] = useState('featured');
-    const [currentPage, setCurrentPage] = useState(1);
-    const [query, setQuery] = useState('');
-    const [debouncedQuery, setDebouncedQuery] = useState('');
-    const pageSize = 24;
-    const [activePromo, setActivePromo] = useState(0);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [visibleCount, setVisibleCount] = useState(24);
+    
+    // Custom Dropdown States
+    const [isCatOpen, setIsCatOpen] = useState(false);
+    const [isSortOpen, setIsSortOpen] = useState(false);
 
-    const { data: categoryData } = useQuery({
-        queryKey: ['categories'],
-        queryFn: fetchCategoriesQuery,
-        staleTime: 1000 * 60 * 60,
+    const { data, isLoading, isError, error } = useQuery({
+        queryKey: ['products', 'all'],
+        queryFn: fetchAllProducts,
+        staleTime: 1000 * 60 * 5, // 5 minutes
     });
 
-    const categories = ['All', ...(categoryData?.categories?.map(c => typeof c === 'string' ? c : c.name) || [])];
+    const allProducts = data?.products || [];
+    
+    // Dynamic Categories from Data
+    const categories = useMemo(() => {
+        const cats = new Set(['All']);
+        allProducts.forEach(p => {
+            if (Array.isArray(p.category)) p.category.forEach(c => cats.add(c));
+            else if (p.category) cats.add(p.category);
+        });
+        return Array.from(cats);
+    }, [allProducts]);
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setActivePromo((prev) => (prev + 1) % PROMOS.length);
-        }, 4000);
-        return () => clearInterval(interval);
-    }, []);
+    // Instant Client-Side Filter & Sort
+    const filteredProducts = useMemo(() => {
+        let result = [...allProducts];
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedQuery(query);
-            setCurrentPage(1);
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [query]);
-
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [selectedCategory, sortOption]);
-
-    const { data, isLoading, isError, error, isPlaceholderData } = useQuery({
-        queryKey: ['products', {
-            category: selectedCategory === 'All' ? '' : selectedCategory,
-            sort: sortOption,
-            q: debouncedQuery,
-            page: currentPage,
-            pageSize
-        }],
-        queryFn: fetchProductsQuery,
-        placeholderData: keepPreviousData,
-    });
-
-    const products = data?.products || [];
-    const totalProducts = data?.total || 0;
-    const totalPages = Math.ceil(totalProducts / pageSize);
-    const soldOutCount = products.filter(p => p?.stock === 0).length;
-
-    const handlePageChange = (p) => {
-        if (p >= 1 && p <= totalPages) {
-            setCurrentPage(p);
-            const el = document.getElementById('products');
-            if (el) {
-                const offset = 80;
-                const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
-                window.scrollTo({ top, behavior: 'smooth' });
-            }
+        // 1. Category Filter
+        if (selectedCategory !== 'All') {
+            result = result.filter(p => {
+                const cats = Array.isArray(p.category) ? p.category : [p.category];
+                return cats.includes(selectedCategory);
+            });
         }
-    };
+
+        // 2. Search Filter
+        if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase();
+            result = result.filter(p => 
+                p.title?.toLowerCase().includes(q) || 
+                p.description?.toLowerCase().includes(q) ||
+                (Array.isArray(p.category) ? p.category.join(' ') : p.category)?.toLowerCase().includes(q)
+            );
+        }
+
+        // 3. Sorting
+        if (sortOption === 'priceAsc') result.sort((a, b) => a.price - b.price);
+        else if (sortOption === 'priceDesc') result.sort((a, b) => b.price - a.price);
+        else if (sortOption === 'newest') result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        // 'featured' logic could be added here based on trending or stock
+        
+        return result;
+    }, [allProducts, selectedCategory, searchQuery, sortOption]);
+
+    const displayedProducts = filteredProducts.slice(0, visibleCount);
+    const hasMore = visibleCount < filteredProducts.length;
+
+    const loadMore = () => setVisibleCount(prev => prev + 24);
 
     return (
-        <main id="main-content">
+        <main id="main-content" className="bg-white">
             <Hero />
             <CategoryGrid />
 
-            <div id="recommendations">
-                <LazyMount>
-                    <Suspense fallback={<div className="p-8 text-center text-gray-600">Loading recommendations…</div>}>
-                        <RecommendedProducts />
-                    </Suspense>
-                </LazyMount>
-            </div>
-
-            <div id="recently-viewed">
-                <LazyMount>
-                    <Suspense fallback={null}>
-                        <RecentlyViewed />
-                    </Suspense>
-                </LazyMount>
-            </div>
-
-            <section id="products" className="py-20 bg-[#fefcf9]">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    {/* Luxury Header */}
-                    <div className="text-center mb-16 animate-luxury-in">
-                        <span className="text-luxury-gold font-sans tracking-[0.3em] uppercase text-xs mb-4 block">Curated Collection</span>
-                        <h2 className="text-5xl md:text-6xl font-serif font-bold text-luxury-black mb-6">
-                            The Collection
-                        </h2>
-                        <div className="w-16 h-[1px] bg-luxury-gold mx-auto"></div>
+            <section id="archive" className="py-24 bg-[#faf9f6]">
+                <div className="max-w-7xl mx-auto px-6 lg:px-12">
+                    
+                    {/* Header Section */}
+                    <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+                        <div className="animate-luxury-in">
+                            <span className="text-luxury-gold font-sans tracking-[0.4em] uppercase text-[10px] mb-4 block font-bold">
+                                The Collection Archive
+                            </span>
+                            <h2 className="text-5xl font-serif font-bold text-luxury-black">
+                                Curated <span className="italic text-luxury-gold font-light">Elegance</span>
+                            </h2>
+                        </div>
+                        <div className="text-[11px] uppercase tracking-widest text-stone-400 font-bold hidden md:block">
+                            {filteredProducts.length} Pieces Synchronized
+                        </div>
                     </div>
 
-                    {/* Sophisticated Filters */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 p-8 bg-white border border-stone-100 shadow-sm rounded-sm">
-                        <div className="w-full">
-                            <label className="block text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-3">Category</label>
-                            <select
-                                value={selectedCategory}
-                                onChange={(e) => setSelectedCategory(e.target.value)}
-                                className="block w-full px-0 py-2 bg-transparent border-b border-stone-200 focus:border-luxury-gold outline-none text-sm transition-colors cursor-pointer"
-                            >
-                                {categories.map(c => <option key={c} value={c}>{c}</option>)}
-                            </select>
+                    {/* Sophisticated Filter Bar */}
+                    <div className="flex flex-col lg:flex-row gap-6 mb-16 items-center">
+                        {/* Search Input */}
+                        <div className="relative flex-grow w-full lg:w-auto overflow-hidden group">
+                            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-stone-300 group-hover:text-luxury-gold transition-colors" size={18} />
+                            <input
+                                type="text"
+                                placeholder="Search the archive..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full bg-white border border-stone-100 py-5 pl-16 pr-6 text-sm focus:border-luxury-gold outline-none transition-all duration-500 font-serif italic"
+                            />
+                            {searchQuery && (
+                                <button onClick={() => setSearchQuery('')} className="absolute right-6 top-1/2 -translate-y-1/2 text-stone-300 hover:text-luxury-black">
+                                    <X size={14} />
+                                </button>
+                            )}
                         </div>
-                        <div className="w-full">
-                            <label className="block text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-3">Sort by</label>
-                            <select
-                                value={sortOption}
-                                onChange={(e) => setSortOption(e.target.value)}
-                                className="block w-full px-0 py-2 bg-transparent border-b border-stone-200 focus:border-luxury-gold outline-none text-sm transition-colors cursor-pointer"
-                            >
-                                <option value="featured">Featured Selection</option>
-                                <option value="priceAsc">Price: Low to High</option>
-                                <option value="priceDesc">Price: High to Low</option>
-                            </select>
-                        </div>
-                        <div className="w-full relative">
-                            <label className="block text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-3">Search</label>
-                            <div className="relative">
-                                <Search className="absolute right-0 top-2 text-stone-400" size={16} />
-                                <input
-                                    type="text"
-                                    placeholder="Search the archive..."
-                                    value={query}
-                                    onChange={(e) => setQuery(e.target.value)}
-                                    className="block w-full px-0 py-2 bg-transparent border-b border-stone-200 focus:border-luxury-gold outline-none text-sm transition-colors"
-                                />
+
+                        {/* Custom Dropdowns Container */}
+                        <div className="flex gap-4 w-full lg:w-auto">
+                            {/* Category Dropdown */}
+                            <div className="relative flex-1 lg:w-56">
+                                <button 
+                                    onClick={() => { setIsCatOpen(!isCatOpen); setIsSortOpen(false); }}
+                                    className="w-full bg-white border border-stone-100 px-8 py-5 text-[10px] uppercase tracking-widest font-bold flex justify-between items-center group hover:border-luxury-gold transition-colors"
+                                >
+                                    <span>{selectedCategory}</span>
+                                    <ChevronDown size={14} className={`transition-transform duration-500 ${isCatOpen ? 'rotate-180' : ''}`} />
+                                </button>
+                                {isCatOpen && (
+                                    <div className="absolute top-full left-0 right-0 z-50 bg-white border border-stone-100 mt-2 shadow-2xl animate-luxury-in overflow-hidden max-h-72 overflow-y-auto custom-scrollbar">
+                                        {categories.map(cat => (
+                                            <button
+                                                key={cat}
+                                                onClick={() => { setSelectedCategory(cat); setIsCatOpen(false); setVisibleCount(24); }}
+                                                className={`w-full text-left px-8 py-4 text-[10px] uppercase tracking-widest hover:bg-stone-50 transition-colors ${selectedCategory === cat ? 'text-luxury-gold bg-stone-50' : 'text-stone-600'}`}
+                                            >
+                                                {cat}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Sort Dropdown */}
+                            <div className="relative flex-1 lg:w-56">
+                                <button 
+                                    onClick={() => { setIsSortOpen(!isSortOpen); setIsCatOpen(false); }}
+                                    className="w-full bg-white border border-stone-100 px-8 py-5 text-[10px] uppercase tracking-widest font-bold flex justify-between items-center group hover:border-luxury-gold transition-colors"
+                                >
+                                    <span>{sortOption === 'featured' ? 'Featured' : sortOption === 'priceAsc' ? 'Price: Low' : sortOption === 'priceDesc' ? 'Price: High' : 'Newest'}</span>
+                                    <ChevronDown size={14} className={`transition-transform duration-500 ${isSortOpen ? 'rotate-180' : ''}`} />
+                                </button>
+                                {isSortOpen && (
+                                    <div className="absolute top-full left-0 right-0 z-50 bg-white border border-stone-100 mt-2 shadow-2xl animate-luxury-in">
+                                        {[
+                                            { id: 'featured', label: 'Featured Selection' },
+                                            { id: 'newest', label: 'Newest Arrivals' },
+                                            { id: 'priceAsc', label: 'Price: Low to High' },
+                                            { id: 'priceDesc', label: 'Price: High to Low' }
+                                        ].map(opt => (
+                                            <button
+                                                key={opt.id}
+                                                onClick={() => { setSortOption(opt.id); setIsSortOpen(false); }}
+                                                className={`w-full text-left px-8 py-4 text-[10px] uppercase tracking-widest hover:bg-stone-50 transition-colors ${sortOption === opt.id ? 'text-luxury-gold bg-stone-50' : 'text-stone-600'}`}
+                                            >
+                                                {opt.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
 
+                    {/* Products Grid */}
                     {isError ? (
-                        <div className="text-center py-20 border border-red-50 bg-red-50/10">
-                            <p className="text-stone-600 mb-6 font-serif italic">{error?.message || "An error occurred while curating the products."}</p>
-                            <button onClick={() => window.location.reload()} className="px-8 py-3 bg-luxury-black text-white text-xs uppercase tracking-widest hover:bg-luxury-gold transition-colors">
-                                Refresh Archive
+                        <div className="text-center py-32 border border-stone-100 bg-white">
+                            <p className="text-stone-500 font-serif italic mb-8">Unable to synchronize pieces at this time.</p>
+                            <button onClick={() => window.location.reload()} className="bg-luxury-black text-white px-10 py-4 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-luxury-gold transition-colors shadow-xl">
+                                Retry Archive
                             </button>
                         </div>
                     ) : isLoading ? (
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                            {[...Array(8)].map((_, i) => (
-                                <ProductCardSkeleton key={i} />
-                            ))}
+                            {[...Array(8)].map((_, i) => <ProductCardSkeleton key={i} />)}
                         </div>
-                    ) : products.length === 0 ? (
-                        <div className="text-center py-32 border border-stone-100">
-                            <p className="text-stone-400 font-serif italic text-lg">No pieces found in the current selection.</p>
+                    ) : filteredProducts.length === 0 ? (
+                        <div className="text-center py-40 bg-white border border-stone-50">
+                            <Filter size={32} className="mx-auto text-stone-200 mb-6" />
+                            <p className="text-stone-400 font-serif italic text-lg tracking-wide underline underline-offset-8 decoration-stone-100">
+                                No matches found in our current archive.
+                            </p>
                         </div>
                     ) : (
                         <>
-                            <div className="flex justify-between items-center mb-8 text-[11px] uppercase tracking-widest text-stone-500 font-bold">
-                                <span>{totalProducts} Distinct Pieces</span>
-                                {soldOutCount > 0 && <span className="text-stone-300">Archived: {soldOutCount}</span>}
-                            </div>
-
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-12">
-                                {products.map((p, i) => (
-                                    <div key={`${p.id}-${i}`} className="animate-luxury-in" style={{ animationDelay: `${i * 0.05}s` }}>
-                                        <ProductCard product={p} priority={i < 4} />
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-16">
+                                {displayedProducts.map((p, i) => (
+                                    <div key={`${p.id}-${i}`} className="animate-luxury-in" style={{ animationDelay: `${(i % 8) * 0.1}s` }}>
+                                        <ProductCard product={p} priority={i < 8} />
                                     </div>
                                 ))}
                             </div>
 
-                            {totalPages > 1 && (
-                                <div className="flex justify-center items-center mt-20 gap-8">
-                                    <button
-                                        onClick={() => handlePageChange(currentPage - 1)}
-                                        disabled={currentPage === 1 || isPlaceholderData}
-                                        className="text-[11px] uppercase tracking-[0.2em] font-bold disabled:opacity-20 hover:text-luxury-gold transition-colors"
+                            {/* Load More Action */}
+                            {hasMore && (
+                                <div className="mt-32 flex flex-col items-center">
+                                    <div className="w-px h-24 bg-stone-100 mb-12"></div>
+                                    <button 
+                                        onClick={loadMore}
+                                        className="relative group text-[10px] uppercase tracking-[0.4em] font-bold py-6 px-16 border border-stone-200 hover:border-luxury-black transition-all duration-700 overflow-hidden"
                                     >
-                                        Back
-                                    </button>
-                                    <div className="h-[1px] w-12 bg-stone-200"></div>
-                                    <span className="text-[11px] font-bold tracking-widest">
-                                        {currentPage} / {totalPages}
-                                    </span>
-                                    <div className="h-[1px] w-12 bg-stone-200"></div>
-                                    <button
-                                        onClick={() => handlePageChange(currentPage + 1)}
-                                        disabled={currentPage === totalPages || isPlaceholderData}
-                                        className="text-[11px] uppercase tracking-[0.2em] font-bold disabled:opacity-20 hover:text-luxury-gold transition-colors"
-                                    >
-                                        Next
+                                        <span className="relative z-10">Expand Selection</span>
+                                        <div className="absolute inset-0 bg-stone-50 -translate-x-full group-hover:translate-x-0 transition-transform duration-700"></div>
                                     </button>
                                 </div>
                             )}
@@ -239,12 +233,11 @@ export default function StoreHomePage() {
                 </div>
             </section>
 
-            <div id="reviews">
-                <LazyMount><Suspense fallback={null}><Reviews /></Suspense></LazyMount>
-            </div>
-            <div id="faq">
-                <LazyMount><Suspense fallback={null}><FAQ /></Suspense></LazyMount>
-            </div>
+            {/* Supplementary Sections */}
+            <LazyMount><Suspense fallback={null}><RecommendedProducts /></Suspense></LazyMount>
+            <LazyMount><Suspense fallback={null}><RecentlyViewed /></Suspense></LazyMount>
+            <LazyMount><Suspense fallback={null}><Reviews /></Suspense></LazyMount>
+            <LazyMount><Suspense fallback={null}><FAQ /></Suspense></LazyMount>
         </main>
     );
 }
