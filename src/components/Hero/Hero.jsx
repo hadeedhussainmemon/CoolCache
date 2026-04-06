@@ -149,127 +149,83 @@ const Hero = ({ images = null, interval = 4000 }) => {
   return (
     <section
       id="home"
-      aria-label="Welcome to CoolCache Online Store"
-      className="text-white py-8 md:py-20 relative overflow-hidden"
+      aria-label="CoolCache Luxury Collection"
+      className="relative bg-stone-50 overflow-hidden min-h-[70vh] flex items-center"
       itemScope
       itemType="https://schema.org/Store"
     >
-      <meta itemProp="name" content="CoolCache Pakistan" />
-      <meta itemProp="description" content="Shop trending electronics, smartwatches, wireless earbuds, power banks, premium gifts, lifestyle accessories & more across Pakistan. Fast delivery with COD available." />
-      <meta itemProp="url" content="https://www.coolcache.app" />
-      <link itemProp="image" href="https://www.coolcache.app/og-image.jpg" />
-
-      {/* Mobile gradient background */}
-      <div className="absolute inset-0 md:hidden bg-gradient-to-br from-blue-500 via-purple-600 to-blue-800 opacity-90" aria-hidden="true"></div>
-      {/* Desktop gradient */}
-      <div className="absolute inset-0 hidden md:block bg-gradient-to-r from-cyan-300 to-blue-950" aria-hidden="true"></div>
-
-      <div className="max-w-7xl mx-auto px-6 flex flex-col items-center justify-center">
-        <div
-          className="w-full mt-6 relative"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-        >
-          <div className="w-full h-[40vh] sm:h-[48vh] md:h-[460px] relative overflow-hidden md:rounded-2xl md:shadow-xl">
-            <div className="flex flex-col md:flex-row h-full">
-              {/* Desktop/tablet: left text, right image */}
-              <div className="hidden md:flex w-3/5 items-center p-10">
-                <div className="max-w-lg">
-                  <h1 className="text-4xl lg:text-5xl font-playfair font-extrabold leading-tight text-white">
-                    Everything in one cart
-                  </h1>
-                  <p className="mt-3 text-lg text-white/90">
-                    Shop a wide selection across categories — essentials, gifts, and special finds — all in one convenient place.
-                  </p>
-                  <div className="mt-6">
-                    <a
-                      href="#products"
-                      className="inline-block bg-white text-purple-700 font-semibold px-6 py-3 rounded-lg shadow hover:shadow-md transition-shadow duration-150"
-                    >
-                      Shop products
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              {/* Image area (used on all sizes). We'll add a mobile overlay for small screens. */}
-              <div
-                className="w-full h-full md:w-2/5 relative overflow-hidden md:rounded-r-2xl bg-gradient-to-br from-blue-400 to-purple-600"
-                style={{}}
+      <div className="max-w-7xl mx-auto px-6 w-full py-20">
+        <div className="flex flex-col md:flex-row items-center gap-16">
+          {/* Text Content */}
+          <div className="w-full md:w-1/2 animate-luxury-in">
+            <span className="text-luxury-gold font-sans tracking-[0.4em] uppercase text-[10px] mb-6 block font-bold">
+              EST. 2024 — THE CURATED ARCHIVE
+            </span>
+            <h1 className="text-6xl lg:text-8xl font-serif font-bold text-luxury-black leading-[0.9] mb-8">
+              Silent <br /> <span className="italic text-luxury-gold">Luxury.</span>
+            </h1>
+            <p className="text-stone-500 text-sm md:text-base leading-relaxed max-w-md mb-12 font-serif italic">
+              Discover a collection where every piece tells a story of craftsmanship and timeless elegance. Curated for the discerning few.
+            </p>
+            <div className="flex items-center gap-8">
+              <a
+                href="#products"
+                className="bg-luxury-black text-white text-[10px] uppercase tracking-[0.3em] font-bold px-10 py-5 hover:bg-luxury-gold transition-all duration-500 shadow-xl"
               >
-                {/* Optimized image loading strategy - enabled for mobile too for better LCP */}
-                {slidesToShow.map((src, i) => (
-                  <img
-                    key={i}
-                    src={src}
-                    alt={`Hero slide ${i + 1}`}
-                    width="1200"
-                    height="630"
-                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-linear transform-gpu ${i === index ? "opacity-100 z-10" : "opacity-0 z-0"
-                      }`}
-                    style={{
-                      willChange: 'opacity'
-                    }}
-                    draggable={false}
-                    loading={i === 0 ? 'eager' : 'lazy'}
-                    fetchPriority={i === 0 ? 'high' : 'low'}
-                    decoding={i === 0 ? 'sync' : 'async'}
-                  />
-                ))}
+                Explore Archive
+              </a>
+              <div className="h-[1px] w-24 bg-stone-200 hidden lg:block"></div>
+            </div>
+          </div>
 
-                {/* mobile overlay: centered text on top of image for small screens */}
-                <div className="md:hidden absolute inset-0 z-20 flex items-center justify-center px-4">
-                  <div className="w-full max-w-md text-center">
-                    <h1 className="text-4xl sm:text-5xl font-playfair font-extrabold text-white leading-tight mb-4 animate-fade-in-up"
-                      style={{
-                        textShadow: '0 4px 12px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3)',
-                        letterSpacing: '-0.02em'
-                      }}
-                      itemProp="slogan">
-                      Everything in one cart
-                    </h1>
-                    <p className="mt-3 text-base sm:text-lg text-white/95 leading-relaxed font-medium animate-fade-in-up"
-                      style={{
-                        textShadow: '0 2px 8px rgba(0,0,0,0.4)',
-                        animationDelay: '0.1s'
-                      }}
-                      itemProp="description">
-                      Electronics, watches, gifts and special finds — curated and ready to ship.
-                    </p>
-                    <div className="mt-8 flex flex-col items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                      <a
-                        href="#products"
-                        className="group relative inline-block bg-gradient-to-r from-white to-gray-50 text-purple-700 font-bold text-lg px-10 py-4 rounded-full shadow-2xl hover:shadow-purple-500/50 hover:scale-105 active:scale-95 transition-all duration-300 w-full max-w-xs text-center overflow-hidden"
-                        aria-label="Browse our collection"
-                        rel="nofollow"
-                        itemProp="hasOfferCatalog"
-                      >
-                        <span className="relative z-10 flex items-center justify-center gap-2">
-                          Shop Now
-                          <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                          </svg>
-                        </span>
-                        <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-
-                {/* loading spinner while images are being prepared */}
-                {!isMobile && isLoadingImages && (
-                  <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/25">
-                    <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin" aria-hidden="true" />
-                    <span className="sr-only">Loading hero images</span>
-                  </div>
-                )}
+          {/* Luxury Image Slider */}
+          <div className="w-full md:w-1/2 relative aspect-[4/5] bg-stone-100 overflow-hidden shadow-2xl group">
+             {slidesToShow.map((src, i) => (
+              <div
+                key={i}
+                className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
+                  i === index ? "opacity-100 scale-100 rotate-0" : "opacity-0 scale-110 rotate-1"
+                }`}
+              >
+                <img
+                  src={src}
+                  alt={`Collection Piece ${i + 1}`}
+                  className="w-full h-full object-cover"
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  fetchPriority={i === 0 ? 'high' : 'low'}
+                />
+                <div className="absolute inset-0 bg-black/5"></div>
               </div>
+            ))}
+            
+            {/* Minimalist Progress Indicators */}
+            <div className="absolute bottom-8 left-8 right-8 flex gap-2 z-20">
+              {slidesToShow.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setIndex(i)}
+                  className="h-[2px] flex-1 bg-white/20 transition-all duration-300 relative overflow-hidden"
+                >
+                  {i === index && (
+                    <div 
+                      className="absolute inset-0 bg-luxury-gold animate-progress-line"
+                      style={{ animationDuration: `${interval}ms` }}
+                    ></div>
+                  )}
+                </button>
+              ))}
+            </div>
 
-              {/* Removed duplicate mobile text section */}
+            {/* Corner Stamp */}
+            <div className="absolute top-8 right-8 w-16 h-16 border border-white/20 rounded-full flex items-center justify-center text-white/40 text-[8px] uppercase tracking-widest font-bold rotate-12 backdrop-blur-sm">
+                Luxury
             </div>
           </div>
         </div>
       </div>
+      
+      {/* Decorative Elements */}
+      <div className="absolute top-0 right-0 w-1/3 h-full bg-stone-100/50 -z-10 skew-x-12 transform translate-x-1/2"></div>
     </section>
   );
 };

@@ -1,10 +1,17 @@
 @import "tailwindcss";
 
+@theme {
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
+  --color-luxury-gold: #c5a059;
+  --color-luxury-black: #0c0c0c;
+  --color-luxury-cream: #f9f6f0;
+}
+
 :root {
   --nav-height: 64px;
-  /* main nav bar height */
   --announce-height: 28px;
-  /* announcement bar height with padding (reduced) */
+  --primary-glow: rgba(197, 160, 89, 0.3);
 }
 
 /* Global layout guards */
@@ -19,60 +26,81 @@ body {
   overflow-x: hidden;
   margin: 0;
   padding: 0;
+  background-color: var(--color-luxury-cream);
+  color: var(--color-luxury-black);
 }
 
-img,
-picture,
-video,
-canvas,
-svg {
-  max-width: 100%;
-  height: auto;
+/* Luxury Shimmer Effect */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
-/* Global offset so content isn't under fixed navbar (apply only when `has-fixed-nav` is set) */
-body {
-  padding-top: 0;
+.luxury-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
 }
 
-/* Remove padding for admin dashboard */
-body.admin-page {
-  padding-top: 0 !important;
+/* Stagger-In Animations */
+@keyframes fadeInUpLuxury {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-luxury-in {
+  opacity: 0;
+  animation: fadeInUpLuxury 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Custom Scrollbar (Sophisticated) */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d1d1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #c5a059;
+}
+
+/* Text Selection */
+::selection {
+  background-color: #c5a059;
+  color: white;
 }
 
 #root {
   min-height: 100vh;
 }
 
-/* Wrapper utility retained (no-op) for backward compatibility */
 .has-fixed-nav {
   padding-top: calc(var(--nav-height) + var(--announce-height)) !important;
 }
 
-/* Cart Animation */
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-.animate-slideIn {
-  animation: slideIn 0.3s ease-out;
-}
-
-/* Hero Text Fade In Up Animation */
+/* Hero Text Fade In Up */
 @keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(20px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
@@ -80,206 +108,27 @@ body.admin-page {
 }
 
 .animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out forwards;
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   opacity: 0;
 }
 
-/* Smooth Gradient Background Animation */
+/* Smooth Gradient */
 @keyframes gradientShift {
-
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 .animate-gradient {
-  background-size: 200% 200%;
-  animation: gradientShift 8s ease infinite;
+  background-size: 240% 240%;
+  animation: gradientShift 12s ease infinite;
 }
 
-/* Pulse Glow Effect */
-@keyframes pulseGlow {
-
-  0%,
-  100% {
-    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
-  }
-
-  50% {
-    box-shadow: 0 0 40px rgba(168, 85, 247, 0.6);
-  }
-}
-
-.animate-pulse-glow {
-  animation: pulseGlow 2s ease-in-out infinite;
-}
-
-/* Fade In Animation for Gift Wrap */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out forwards;
-}
-
-/* Force Bottom Navigation to stay at bottom */
-.bottom-nav-fixed {
-  position: fixed !important;
-  bottom: 0 !important;
-  top: auto !important;
-  left: 0 !important;
-  right: 0 !important;
-}
-
-/* Infinite Horizontal Scroll Animation with user control */
-@keyframes scroll-rtl {
-  0% {
-    transform: translateX(0);
-  }
-
-  100% {
-    transform: translateX(-100%);
-  }
-}
-
-@keyframes scroll-rtl2 {
-  0% {
-    transform: translateX(100%);
-  }
-
-  100% {
-    transform: translateX(0);
-  }
-}
-
-.animate-scroll-rtl {
-  animation: scroll-rtl 30s linear infinite;
-}
-
-.animate-scroll-rtl2 {
-  animation: scroll-rtl2 30s linear infinite;
-}
-
-/* Pause animation on hover or touch/drag */
-.scrollable-announcement:hover .animate-scroll-rtl,
-.scrollable-announcement:hover .animate-scroll-rtl2,
-.scrollable-announcement.paused .animate-scroll-rtl,
-.scrollable-announcement.paused .animate-scroll-rtl2 {
-  animation-play-state: paused;
-}
-
-/* --- Premium UI Enhancements --- */
-
-/* Smooth Scrolling */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Custom Text Selection Color */
-::selection {
-  background-color: #d8b4fe;
-  /* Purple-300 */
-  color: #581c87;
-  /* Purple-900 */
-}
-
-/* Custom Scrollbar (Webkit) */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f3f4f6;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #d8b4fe;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #c084fc;
-}
-
-/* --- Staggered Animation Utilities --- */
-@keyframes fadeInUpRaw {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-stagger-item {
-  opacity: 0;
-  /* start hidden */
-  animation: fadeInUpRaw 0.5s ease-out forwards;
-}
-
-/* Generate delays for up to 12 items */
-.animate-stagger-item:nth-child(1) {
-  animation-delay: 0.05s;
-}
-
-.animate-stagger-item:nth-child(2) {
-  animation-delay: 0.1s;
-}
-
-.animate-stagger-item:nth-child(3) {
-  animation-delay: 0.15s;
-}
-
-.animate-stagger-item:nth-child(4) {
-  animation-delay: 0.2s;
-}
-
-.animate-stagger-item:nth-child(5) {
-  animation-delay: 0.25s;
-}
-
-.animate-stagger-item:nth-child(6) {
-  animation-delay: 0.3s;
-}
-
-.animate-stagger-item:nth-child(7) {
-  animation-delay: 0.35s;
-}
-
-.animate-stagger-item:nth-child(8) {
-  animation-delay: 0.4s;
-}
-
-.animate-stagger-item:nth-child(9) {
-  animation-delay: 0.45s;
-}
-
-.animate-stagger-item:nth-child(10) {
-  animation-delay: 0.5s;
-}
-
-.animate-stagger-item:nth-child(11) {
-  animation-delay: 0.55s;
-}
-
-.animate-stagger-item:nth-child(12) {
-  animation-delay: 0.6s;
-}
+/* Stagger Delays */
+.animate-stagger-item:nth-child(1) { animation-delay: 0.1s; }
+.animate-stagger-item:nth-child(2) { animation-delay: 0.15s; }
+.animate-stagger-item:nth-child(3) { animation-delay: 0.2s; }
+.animate-stagger-item:nth-child(4) { animation-delay: 0.25s; }
+.animate-stagger-item:nth-child(5) { animation-delay: 0.3s; }
+.animate-stagger-item:nth-child(6) { animation-delay: 0.35s; }
+.animate-stagger-item:nth-child(7) { animation-delay: 0.4s; }
+.animate-stagger-item:nth-child(8) { animation-delay: 0.45s; }

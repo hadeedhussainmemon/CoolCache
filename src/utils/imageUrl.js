@@ -9,20 +9,24 @@ export function getImageUrl(path, options = {}) {
   
   if (!path) return fallback;
 
-  // Debug: catch [object Object] origins
-  if (typeof path === 'object' || (typeof path === 'string' && path.includes('[object Object]'))) {
-    console.warn('⚠️ getImageUrl detected object or stringified object:', path);
-    // Try to extract a URL property if it's an object
-    if (path && typeof path === 'object') {
-      if (path.url) return getImageUrl(path.url, options);
-      if (path.secure_url) return getImageUrl(path.secure_url, options);
-      if (path.src) return getImageUrl(path.src, options);
+  // Hard Redesign: Catch and unwrap objects to prevent [object Object]
+  let s = path;
+  if (path && typeof path === 'object') {
+    console.log('[DEBUG] getImageUrl received object:', JSON.stringify(path).slice(0, 100));
+    // Try common keys in order of probability
+    s = path.secure_url || path.url || path.src || path.image || path.path || path.thumb || path.thumbnail;
+    
+    // If still an object, keep looking one level deeper or fallback
+    if (s && typeof s === 'object') {
+      s = s.url || s.secure_url || fallback;
     }
-    return fallback;
   }
 
-  const s = String(path).trim();
-  if (s === 'undefined' || s === 'null' || s === '') return fallback;
+  s = String(s || '').trim();
+  if (!s || s === 'undefined' || s === 'null' || s === '[object Object]') {
+    console.warn('[DEBUG] getImageUrl narrowed down to invalid string:', s);
+    return fallback;
+  }
 
   // Cloudinary Optimization
   if (s.includes('res.cloudinary.com')) {

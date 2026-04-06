@@ -129,108 +129,106 @@ export default function StoreHomePage() {
                 </LazyMount>
             </div>
 
-            <section id="products" className="py-16 bg-gradient-to-b from-gray-50/50 to-white">
-                <div className="bg-gradient-to-r from-violet-600 to-purple-600 text-white py-3 overflow-hidden mb-8">
-                    <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
-                        <div className="flex items-center gap-2 animate-fade-in-up">
-                            <span className="text-xl">✨</span>
-                            <p className="font-medium text-sm md:text-base tracking-wide">{PROMOS[activePromo]}</p>
-                        </div>
-                    </div>
-                </div>
-
+            <section id="products" className="py-20 bg-[#fefcf9]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-10">
-                        <h2 className="text-4xl md:text-5xl font-playfair font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600 bg-clip-text text-transparent mb-3 animate-gradient">
-                            All Products
+                    {/* Luxury Header */}
+                    <div className="text-center mb-16 animate-luxury-in">
+                        <span className="text-luxury-gold font-sans tracking-[0.3em] uppercase text-xs mb-4 block">Curated Collection</span>
+                        <h2 className="text-5xl md:text-6xl font-serif font-bold text-luxury-black mb-6">
+                            The Collection
                         </h2>
-                        <div className="w-24 h-1 bg-gradient-to-r from-purple-600 to-pink-500 mx-auto rounded-full mb-4"></div>
+                        <div className="w-16 h-[1px] bg-luxury-gold mx-auto"></div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6 px-4 py-4 bg-gradient-to-br from-white/90 to-purple-50/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-xl shadow-purple-100/50">
+                    {/* Sophisticated Filters */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 p-8 bg-white border border-stone-100 shadow-sm rounded-sm">
                         <div className="w-full">
-                            <label className="block text-xs font-semibold text-gray-700 mb-2">Category</label>
+                            <label className="block text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-3">Category</label>
                             <select
                                 value={selectedCategory}
                                 onChange={(e) => setSelectedCategory(e.target.value)}
-                                className="block w-full pl-4 pr-10 py-3 rounded-2xl bg-white/80 border border-purple-200/50 focus:ring-2 focus:ring-purple-500 outline-none"
+                                className="block w-full px-0 py-2 bg-transparent border-b border-stone-200 focus:border-luxury-gold outline-none text-sm transition-colors cursor-pointer"
                             >
                                 {categories.map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
                         </div>
                         <div className="w-full">
-                            <label className="block text-xs font-semibold text-gray-700 mb-2">Sort by</label>
+                            <label className="block text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-3">Sort by</label>
                             <select
                                 value={sortOption}
                                 onChange={(e) => setSortOption(e.target.value)}
-                                className="block w-full pl-4 pr-10 py-3 rounded-2xl bg-white/80 border border-purple-200/50 focus:ring-2 focus:ring-purple-500 outline-none"
+                                className="block w-full px-0 py-2 bg-transparent border-b border-stone-200 focus:border-luxury-gold outline-none text-sm transition-colors cursor-pointer"
                             >
-                                <option value="featured">Featured</option>
+                                <option value="featured">Featured Selection</option>
                                 <option value="priceAsc">Price: Low to High</option>
                                 <option value="priceDesc">Price: High to Low</option>
                             </select>
                         </div>
-                        <div className="w-full relative md:self-end">
-                            <label className="block text-xs font-semibold text-gray-700 mb-2">Search</label>
+                        <div className="w-full relative">
+                            <label className="block text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-3">Search</label>
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                                <Search className="absolute right-0 top-2 text-stone-400" size={16} />
                                 <input
                                     type="text"
-                                    placeholder="Search products..."
+                                    placeholder="Search the archive..."
                                     value={query}
                                     onChange={(e) => setQuery(e.target.value)}
-                                    className="block w-full pl-10 pr-4 py-3 rounded-2xl bg-white/80 border border-purple-200/50 focus:ring-2 focus:ring-purple-500 outline-none"
+                                    className="block w-full px-0 py-2 bg-transparent border-b border-stone-200 focus:border-luxury-gold outline-none text-sm transition-colors"
                                 />
                             </div>
                         </div>
                     </div>
 
                     {isError ? (
-                        <div className="text-center py-12">
-                            <p className="text-red-600 mb-4">{error?.message || "Error loading products"}</p>
-                            <button onClick={() => window.location.reload()} className="px-6 py-2 bg-purple-600 text-white rounded-lg">Try Again</button>
+                        <div className="text-center py-20 border border-red-50 bg-red-50/10">
+                            <p className="text-stone-600 mb-6 font-serif italic">{error?.message || "An error occurred while curating the products."}</p>
+                            <button onClick={() => window.location.reload()} className="px-8 py-3 bg-luxury-black text-white text-xs uppercase tracking-widest hover:bg-luxury-gold transition-colors">
+                                Refresh Archive
+                            </button>
                         </div>
                     ) : isLoading ? (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                             {[...Array(8)].map((_, i) => (
                                 <ProductCardSkeleton key={i} />
                             ))}
                         </div>
                     ) : products.length === 0 ? (
-                        <div className="text-center py-16 text-gray-500">
-                            No products found.
+                        <div className="text-center py-32 border border-stone-100">
+                            <p className="text-stone-400 font-serif italic text-lg">No pieces found in the current selection.</p>
                         </div>
                     ) : (
                         <>
-                            <div className="flex justify-between items-center mb-4 px-2 text-sm text-gray-600">
-                                <span>Showing {totalProducts} products</span>
-                                {soldOutCount > 0 && <span className="bg-gray-100 px-2 py-0.5 rounded-full text-xs">Sold out: {soldOutCount}</span>}
+                            <div className="flex justify-between items-center mb-8 text-[11px] uppercase tracking-widest text-stone-500 font-bold">
+                                <span>{totalProducts} Distinct Pieces</span>
+                                {soldOutCount > 0 && <span className="text-stone-300">Archived: {soldOutCount}</span>}
                             </div>
 
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-12">
                                 {products.map((p, i) => (
-                                    <div key={`${p.id}-${i}`} className="animate-stagger-item h-full">
+                                    <div key={`${p.id}-${i}`} className="animate-luxury-in" style={{ animationDelay: `${i * 0.05}s` }}>
                                         <ProductCard product={p} priority={i < 4} />
                                     </div>
                                 ))}
                             </div>
 
                             {totalPages > 1 && (
-                                <div className="flex justify-center mt-8 gap-2">
+                                <div className="flex justify-center items-center mt-20 gap-8">
                                     <button
                                         onClick={() => handlePageChange(currentPage - 1)}
                                         disabled={currentPage === 1 || isPlaceholderData}
-                                        className="px-4 py-2 bg-white border rounded-lg disabled:opacity-50"
+                                        className="text-[11px] uppercase tracking-[0.2em] font-bold disabled:opacity-20 hover:text-luxury-gold transition-colors"
                                     >
-                                        Prev
+                                        Back
                                     </button>
-                                    <span className="flex items-center px-4 font-medium">
-                                        Page {currentPage} of {totalPages}
+                                    <div className="h-[1px] w-12 bg-stone-200"></div>
+                                    <span className="text-[11px] font-bold tracking-widest">
+                                        {currentPage} / {totalPages}
                                     </span>
+                                    <div className="h-[1px] w-12 bg-stone-200"></div>
                                     <button
                                         onClick={() => handlePageChange(currentPage + 1)}
                                         disabled={currentPage === totalPages || isPlaceholderData}
-                                        className="px-4 py-2 bg-white border rounded-lg disabled:opacity-50"
+                                        className="text-[11px] uppercase tracking-[0.2em] font-bold disabled:opacity-20 hover:text-luxury-gold transition-colors"
                                     >
                                         Next
                                     </button>

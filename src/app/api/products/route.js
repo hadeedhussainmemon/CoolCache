@@ -71,7 +71,7 @@ export async function GET(req) {
     else if (sort === 'priceDesc') secondarySort = { price: -1, _id: -1 };
     else if (sort === 'featured') secondarySort = { stock: -1, _id: -1 };
 
-    // Nuclear Redesign: Use direct find() without any field restrictions or facet logic
+    // Nuclear Redesign: Use direct find() without any field restrictions
     const total = await Product.countDocuments(matchStage);
     const productsData = await Product.find(matchStage)
       .sort(secondarySort)
@@ -80,39 +80,25 @@ export async function GET(req) {
       .lean();
 
     console.log('--- COLLECTION DIAGNOSTICS ---');
-    console.log('Total in collection (raw):', await Product.countDocuments({}));
     console.log('Total matching filters:', total);
-    console.log('Page:', page, 'PageSize:', pageSize);
     
-    if (productsData.length > 0) {
-      console.log('Sample Product ID:', productsData[0].id);
-      console.log('Sample Product Visibility:', productsData[0].isVisible);
-    }
+    const products = productsData.map(d => {
+      // THE DIAGNOSTIC LOG: This will reveal the bug in Vercel logs
+      console.log(`[DATA DIAGNOSTIC] ID: ${d.id}, raw isVisible: ${d.isVisible}, type: ${typeof d.isVisible}`);
+      
+      // Ensure we return the raw document but formatted for the frontend
+      return {
+        ...d,
+        description: (d.description && d.description.length > 120) ? `${d.description.slice(0, 120)}...` : d.description
+      };
+    });
 
-    const payload = productsData.map(d => ({
-      id: d.id,
-      title: d.title,
-      price: d.price,
-      purchasePrice: d.purchasePrice,
-      vendor: d.vendor,
-      image: d.image,
-      slug: d.slug,
-      category: d.category,
-      stock: d.stock,
-      isVisible: d.isVisible,
-      description: (d.description && d.description.length > 120) ? `${d.description.slice(0, 120)}...` : d.description
-    }));
-
-    return NextResponse.json({ products: payload, total, page, pageSize }, {
+    return NextResponse.json({ products, total, page, pageSize }, {
       headers: { 'Cache-Control': 's-maxage=60, stale-while-revalidate=300' }
     });
   } catch (error) {
     console.error('API Products GET error:', error);
-    return NextResponse.json({ 
-      message: 'Error fetching products', 
-      error: error.message,
-      stack: error.stack 
-    }, { status: 500 });
+    return NextResponse.json({ message: 'Error fetching products', error: error.message }, { status: 500 });
   }
 }
 

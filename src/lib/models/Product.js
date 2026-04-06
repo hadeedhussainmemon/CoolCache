@@ -15,7 +15,7 @@ const productSchema = new mongoose.Schema({
         required: true
     },
     purchasePrice: {
-        type: Number,
+        type: mongoose.Schema.Types.Mixed,
         default: 0
     },
     description: {
@@ -66,7 +66,7 @@ const productSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
-});
+}, { collection: 'products' });
 
 productSchema.index({ title: 'text', description: 'text', category: 'text' });
 productSchema.index({ category: 1 });
