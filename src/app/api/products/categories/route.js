@@ -5,8 +5,14 @@ import Product from '@/lib/models/Product';
 // GET /api/products/categories
 export async function GET() {
   try {
-    await connectToDatabase();
+    const conn = await connectToDatabase();
+    console.log('--- API Categories Debug ---');
+    console.log('DB Name:', conn.connection?.name);
+    console.log('Collection Name:', Product.collection.name);
     
+    const count = await Product.countDocuments({});
+    console.log('Raw products count for categories query:', count);
+
     const categories = await Product.aggregate([
       { $unwind: "$category" },
       {
@@ -19,6 +25,8 @@ export async function GET() {
       },
       { $sort: { originalName: 1 } }
     ]);
+
+    console.log('Categories found:', categories.length);
 
     const payload = categories.map(c => ({
       name: c.originalName,

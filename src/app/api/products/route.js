@@ -9,7 +9,14 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 // GET /api/products
 export async function GET(req) {
   try {
-    await connectToDatabase();
+    const conn = await connectToDatabase();
+    console.log('--- API Products Debug ---');
+    console.log('DB Name:', conn.connection?.name);
+    console.log('Collection Name:', Product.collection.name);
+    
+    // Check if the collection actually has any documents at all
+    const rawCount = await Product.countDocuments({});
+    console.log('Raw count in collection:', rawCount);
     
     const { searchParams } = new URL(req.url);
     const page = Math.max(1, parseInt(searchParams.get('page')) || 1);
@@ -51,6 +58,8 @@ export async function GET(req) {
 
     if (inStock) matchStage.stock = { $gt: 0 };
 
+    console.log('Match Stage:', JSON.stringify(matchStage, null, 2));
+
     let secondarySort = { _id: -1 };
     const sort = searchParams.get('sort');
     if (sort === 'priceAsc') secondarySort = { price: 1, _id: -1 };
@@ -85,6 +94,7 @@ export async function GET(req) {
     ];
 
     const result = await Product.aggregate(pipeline);
+    console.log('Aggregate Result Length:', result[0]?.data?.length || 0);
     const total = result[0].metadata.length > 0 ? result[0].metadata[0].total : 0;
     const productsData = result[0].data;
 
@@ -107,7 +117,11 @@ export async function GET(req) {
     });
   } catch (error) {
     console.error('API Products GET error:', error);
-    return NextResponse.json({ message: 'Error fetching products', error: error.message }, { status: 500 });
+    return NextResponse.json({ 
+      message: 'Error fetching products', 
+      error: error.message,
+      stack: error.stack 
+    }, { status: 500 });
   }
 }
 
