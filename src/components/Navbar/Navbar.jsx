@@ -139,7 +139,7 @@ const Navbar = () => {
                 <div className="relative">
                   <div className="absolute inset-0 bg-luxury-gold/10 rounded-full blur-md transform scale-110 group-hover:scale-125 transition-transform duration-300"></div>
                   <img
-                    src={logo}
+                    src={logo.src || logo}
                     alt="CoolCache"
                     width="40"
                     height="40"

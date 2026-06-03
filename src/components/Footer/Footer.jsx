@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
 import PushToggle from "../Notifications/PushToggle";
 
 const Footer = () => {
